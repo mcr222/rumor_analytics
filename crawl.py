@@ -1,6 +1,5 @@
 #__author: Miranti Rahmani__
 
-
 import tweepy #pip install tweepy
 from TwitterSearch import * #pip install TwitterSearch 
 
@@ -26,8 +25,9 @@ try:
 	    print('@' + tweet['user']['screen_name'])
 	    print('id: ' + str(tweet['user']['id']))
 	    print(tweet['text'].encode('ascii','ignore') + '\n')
+	    #note: seems like tweet['user'] generates all metadata about one's tweet in dict format. it's possible to parse hashtag & links from the dict
 
-except TwitterSearchException as e:
+except TwitterSearchException as e: #catch errors
     print(e)
 
 #----use this if you want to crawl from your own timeline----
