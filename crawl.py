@@ -1,24 +1,29 @@
-#__author: Miranti Rahmani__
+#__author: Miranti Rahmani, Irfan Nur Afif__
 
 import tweepy #pip install tweepy
 from TwitterSearch import * #pip install TwitterSearch 
 
 
-auth = tweepy.OAuthHandler('yy2MNJhZohRNuLwmAGEpbxg29', 'YWplgn58vd5OAtJehKRQgCYe9Oi20YI01RwBFgkkGG2rSlv8Gi')
-auth.set_access_token('777483763597074432-ftrzRrPw2vBNyiADa02dAlcinNnYXSL', 'EELcpttFpHX74eTRx9GsKOYJmZqWJNWk6pgnSqvrTGp1Q')
+consumer_key='yy2MNJhZohRNuLwmAGEpbxg29'
+consumer_secret='YWplgn58vd5OAtJehKRQgCYe9Oi20YI01RwBFgkkGG2rSlv8Gi'
+access_token='777483763597074432-ftrzRrPw2vBNyiADa02dAlcinNnYXSL'
+access_token_secret='EELcpttFpHX74eTRx9GsKOYJmZqWJNWk6pgnSqvrTGp1Q'
+
+auth = tweepy.OAuthHandler(consumer_key, consumer_secret)
+auth.set_access_token(access_token, access_token_secret)
 
 
 
 #search tweet
 try:
 	tso = TwitterSearchOrder()
-	tso.set_keywords(['tu', 'eindhoven']) #insert search keyword here
+	tso.set_keywords(['tu eindhoven']) #insert search keyword here
 
 	ts = TwitterSearch(
-	            consumer_key = 'yy2MNJhZohRNuLwmAGEpbxg29',
-	            consumer_secret = 'YWplgn58vd5OAtJehKRQgCYe9Oi20YI01RwBFgkkGG2rSlv8Gi',
-	            access_token = '777483763597074432-ftrzRrPw2vBNyiADa02dAlcinNnYXSL',
-	            access_token_secret = 'EELcpttFpHX74eTRx9GsKOYJmZqWJNWk6pgnSqvrTGp1Q'
+	            consumer_key = consumer_key,
+	            consumer_secret = consumer_secret,
+	            access_token = access_token,
+	            access_token_secret = access_token_secret
 	        )
 
 	for tweet in ts.search_tweets_iterable(tso):
