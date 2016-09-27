@@ -33,12 +33,13 @@ try:
 		username = tweet['user']['screen_name']
 		uID = tweet['user']['id']
 		uLocation = tweet['user']['location'].encode('ascii','ignore')
-		status = tweet['text'].encode('ascii','ignore')
+		status = tweet['text'].replace('\n', ' ').encode('ascii','ignore')
 		retweets = tweet['retweet_count']
 		hashtag_list = tweet['entities']['hashtags']
 		tweet_id = tweet['id_str']
 		favorite_count = tweet['favorite_count']
 		in_reply_to_status_id = tweet['in_reply_to_status_id_str']
+		hashtag_list_str = ''
 
 
 		#print to console
@@ -56,8 +57,10 @@ try:
 			isHashtagAvailable = 1
 			for i in hashtag_list:
 				print(i['text'].encode('ascii','ignore'))
+				hashtag_list_str = hashtag_list_str + '#' + i['text'].encode('ascii','ignore')
 		else:
 			isHashtagAvailable = 0
+		print(hashtag_list_str)
 		print('favcount: ' + str(favorite_count))
 		if in_reply_to_status_id is None:
 			in_reply_to_status_id = 'None'
@@ -66,7 +69,7 @@ try:
 		print('in reply to status id: ' + in_reply_to_status_id)
 		print('\n')
 	    #write metadata to external file
-		file_out.write(str(docID) + ';' + username + ';' + str(uID) + ';' + uLocation + ';' + tweet_id + ';' + str(retweets) + ';' + str(favorite_count) + ';' + in_reply_to_status_id + ';' + str(isHashtagAvailable) + '\n')
+		file_out.write(str(docID) + ';' + username + ';' + str(uID) + ';' + uLocation + ';' + tweet_id + ';' + str(retweets) + ';' + str(favorite_count) + ';' + in_reply_to_status_id + ';' + str(isHashtagAvailable) + hashtag_list_str + '\n')
 		
 		#write tweets to external file
 		file_raw_tweet.write(str(docID) + ';' + status + '\n')
