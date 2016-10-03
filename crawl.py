@@ -85,9 +85,9 @@ def crawl():
 			for term in tweetToken:
 				value=dictionary.get(term,None)
 				if value==None:
-					dictionary[term]=[uID]
+					dictionary[term]=[tweet_id]
 				else:
-					dictionary[term].append(uID)
+					dictionary[term].append(tweet_id)
 
 
 	except TwitterSearchException as e: #catch errors
@@ -101,9 +101,9 @@ if __name__ == "__main__":
 	index=crawl()
 	file_out = open('tweetindex.txt', 'w')
 	for term in sorted(index):
-		docID=index[term]
+		tweetID=index[term]
 		file_out.write(term+": ")
-		for idtweet in docID:
+		for idtweet in tweetID:
 			file_out.write(str(idtweet)+",")
 		file_out.write("\n")
 	file_out.close()	
