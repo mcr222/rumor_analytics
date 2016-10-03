@@ -99,11 +99,14 @@ def crawl():
 
 if __name__ == "__main__":
 	index=crawl()
-	for term,docID in index.iteritems():
-		print term+": ",
+	file_out = open('tweetindex.txt', 'w')
+	for term in sorted(index):
+		docID=index[term]
+		file_out.write(term+": ")
 		for idtweet in docID:
-			print str(idtweet)+",",
-		print
+			file_out.write(str(idtweet)+",")
+		file_out.write("\n")
+	file_out.close()	
 
 #----use this if you want to crawl from your own timeline----
 #get 20 tweets in my timeline
