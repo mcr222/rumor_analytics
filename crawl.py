@@ -25,6 +25,7 @@ def crawl():
 	try:
 		tso = TwitterSearchOrder()
 		tso.set_keywords(['angelina jolie']) #insert search keyword here
+		tso.set_language('en')
 
 		ts = TwitterSearch(
 		            consumer_key = consumer_key,
