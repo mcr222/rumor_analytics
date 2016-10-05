@@ -45,6 +45,8 @@ def crawl():
 			favorite_count = tweet['favorite_count']
 			in_reply_to_status_id = tweet['in_reply_to_status_id_str']
 			hashtag_list_str = ''
+			mentions = tweet['entities']['user_mentions']
+			mentions_str=''
 
 
 			#print to console
@@ -72,12 +74,20 @@ def crawl():
 			else:
 				None
 			print('in reply to status id: ' + in_reply_to_status_id)
+			if len(mentions)>0:
+				isMentionAvailable=1
+				for j in mentions:
+					mentions_str = mentions_str + '@' + j['screen_name']
+				print('mentions: ' + mentions_str)
+			else:
+				isMentionAvailable=0
+				print('mentions: None')
 			print('\n')
 		    #write metadata to external file
-			file_out.write(str(docID) + ';' + username + ';' + str(uID) + ';' + uLocation + ';' + tweet_id + ';' + str(retweets) + ';' + str(favorite_count) + ';' + in_reply_to_status_id + ';' + str(isHashtagAvailable) + hashtag_list_str + '\n')
+			file_out.write(str(docID) + ';' + username + ';' + str(uID) + ';' + uLocation + ';' + tweet_id + ';' + str(retweets) + ';' + str(favorite_count) + ';' + in_reply_to_status_id + ';' + str(isHashtagAvailable) + ';' + hashtag_list_str + ';' + mentions_str + '\n')
 			
 			#write tweets to external file
-			file_raw_tweet.write(str(docID) + ';' + status + '\n')
+			file_raw_tweet.write(str(docID) + ';' + tweet_id + ';' + status + ';' + hashtag_list_str + ';' + mentions_str + '\n')
 
 			docID = docID + 1
 
