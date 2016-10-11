@@ -1,6 +1,6 @@
 #__author: Miranti Rahmani, Irfan Nur Afif__
 
-import tweepy #pip install tweepy
+import tweepy,FilterStem #pip install tweepy
 from TwitterSearch import * #pip install TwitterSearch 
 
 
@@ -13,6 +13,8 @@ auth = tweepy.OAuthHandler(consumer_key, consumer_secret)
 auth.set_access_token(access_token, access_token_secret)
 
 
+#input: none
+#output: dictionary of: filtered word -> (docID,freq)
 def crawl():
 	docID = 1
 	diction ={}
@@ -90,7 +92,10 @@ def crawl():
 			docID = docID + 1
 
 			#indexing
-			tweetToken=status.split(" ")
+			
+
+			#tweetToken=status.split(" ")
+			tweetToken=FilterStem.f_line_filter(status)
 			for term in tweetToken:
 				value=diction.get(term,None)
 				if value==None:

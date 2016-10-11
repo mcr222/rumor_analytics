@@ -14,7 +14,13 @@ A short description of the motivation behind the creation and maintenance of the
 
     pip install tweepy
     pip install TwitterSearch
-
+    pip install nltk
+    python
+    import nltk
+    nltk.download()
+    d
+    all
+    
 
 ## API Reference
 

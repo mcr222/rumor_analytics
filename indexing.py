@@ -1,3 +1,6 @@
+
+
+
 def buildIndex(diction):
 	dictionary=diction
 	file_out = open('tweetindex.txt', 'w')
