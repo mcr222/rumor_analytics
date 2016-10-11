@@ -24,7 +24,8 @@ def crawl():
 	#search tweet
 	try:
 		tso = TwitterSearchOrder()
-		tso.set_keywords(['angelina jolie']) #insert search keyword here
+		keyw=raw_input('Input search term:')
+		tso.set_keywords([keyw]) #insert search keyword here
 		tso.set_language('en')
 
 		ts = TwitterSearch(
