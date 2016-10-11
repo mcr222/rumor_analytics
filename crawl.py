@@ -13,11 +13,9 @@ auth = tweepy.OAuthHandler(consumer_key, consumer_secret)
 auth.set_access_token(access_token, access_token_secret)
 
 
-
-
 def crawl():
 	docID = 1
-	dictionary ={}
+	diction ={}
 	file_out = open('metadata.txt', 'w')
 	file_raw_tweet = open('tweets.txt', 'w')
 
@@ -94,11 +92,11 @@ def crawl():
 			#indexing
 			tweetToken=status.split(" ")
 			for term in tweetToken:
-				value=dictionary.get(term,None)
+				value=diction.get(term,None)
 				if value==None:
-					dictionary[term]=[tweet_id]
+					diction[term]=[tweet_id]
 				else:
-					dictionary[term].append(tweet_id)
+					diction[term].append(tweet_id)
 
 
 	except TwitterSearchException as e: #catch errors
@@ -106,18 +104,8 @@ def crawl():
 
 	file_out.close()
 	file_raw_tweet.close()
-	return dictionary
-
-if __name__ == "__main__":
-	index=crawl()
-	file_out = open('tweetindex.txt', 'w')
-	for term in sorted(index):
-		tweetID=index[term]
-		file_out.write(term+": ")
-		for idtweet in tweetID:
-			file_out.write(str(idtweet)+",")
-		file_out.write("\n")
-	file_out.close()	
+	return diction
+		
 
 #----use this if you want to crawl from your own timeline----
 #get 20 tweets in my timeline
