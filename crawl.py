@@ -12,20 +12,22 @@ access_token_secret='EELcpttFpHX74eTRx9GsKOYJmZqWJNWk6pgnSqvrTGp1Q'
 auth = tweepy.OAuthHandler(consumer_key, consumer_secret)
 auth.set_access_token(access_token, access_token_secret)
 
-
 #input: none
 #output: dictionary of: filtered word -> (docID,freq)
-def crawl():
+def crawl(keywordstr):
 	docID = 1
 	diction ={}
 	file_out = open('metadata.txt', 'w')
 	file_raw_tweet = open('tweets.txt', 'w')
+	file_out.write('docID;username;userID;uLocation;tweetID;numberOfRetweet;numberOfFavorites;inReplytoStatusID;isHashtagAvailable;mentions' + '\n')
+	file_raw_tweet .write('docID;tweetID;tweetText;Hashtags;Mentions' + '\n')
 
 	#search tweet
 	try:
 		tso = TwitterSearchOrder()
-		keyw=raw_input('Input search term:')
-		tso.set_keywords([keyw]) #insert search keyword here
+		#keyw=raw_input('Input search term:')
+		#tso.set_keywords([keyw]) #insert search keyword here
+		tso.set_keywords([keywordstr])
 		tso.set_language('en')
 
 		ts = TwitterSearch(
@@ -111,7 +113,8 @@ def crawl():
 	file_out.close()
 	file_raw_tweet.close()
 	return diction
-		
+
+crawl('final exam')
 
 #----use this if you want to crawl from your own timeline----
 #get 20 tweets in my timeline
