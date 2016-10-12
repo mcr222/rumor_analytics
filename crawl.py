@@ -2,6 +2,7 @@
 
 import tweepy,FilterStem #pip install tweepy
 from TwitterSearch import * #pip install TwitterSearch 
+import json
 
 
 consumer_key='yy2MNJhZohRNuLwmAGEpbxg29'
@@ -11,6 +12,14 @@ access_token_secret='EELcpttFpHX74eTRx9GsKOYJmZqWJNWk6pgnSqvrTGp1Q'
 
 auth = tweepy.OAuthHandler(consumer_key, consumer_secret)
 auth.set_access_token(access_token, access_token_secret)
+
+def save_dictionary(name, dict):
+	f = open(name,"w")
+	json.dump(dict,f)
+	
+def read_dictionary(name):
+	f = open(name,"r")
+	return json.load(f)
 
 #input: none
 #output: dictionary of: filtered word -> (docID,freq)
@@ -22,6 +31,8 @@ def crawl(keywordstr):
 	file_out.write('docID;username;userID;uLocation;tweetID;numberOfRetweet;numberOfFavorites;inReplytoStatusID;isHashtagAvailable;mentions' + '\n')
 	file_raw_tweet .write('docID;tweetID;tweetText;Hashtags;Mentions' + '\n')
 
+	#Store the tweet text in a map so it can be easily retrieved (for clustering evaluation)
+	tweet_id_to_text = {}
 	#search tweet
 	try:
 		tso = TwitterSearchOrder()
@@ -92,6 +103,8 @@ def crawl(keywordstr):
 			#write tweets to external file
 			file_raw_tweet.write(str(docID) + ';' + tweet_id + ';' + status + ';' + hashtag_list_str + ';' + mentions_str + '\n')
 
+			tweet_id_to_text[tweet_id] = status
+			
 			docID = docID + 1
 
 			#indexing
@@ -112,6 +125,7 @@ def crawl(keywordstr):
 
 	file_out.close()
 	file_raw_tweet.close()
+	save_dictionary("tweet_text_dictionary.json", tweet_id_to_text)
 	return diction
 
 #crawl('final exam')
