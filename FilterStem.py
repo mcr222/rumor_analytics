@@ -9,6 +9,7 @@ import nltk
 from nltk.stem.snowball import SnowballStemmer 
 from nltk.stem.lancaster import LancasterStemmer
 from nltk.corpus import stopwords
+import string
 
 
 #I dot know yet how to filter things like ; : ;;, .... cant add more to this stopwords
@@ -35,7 +36,7 @@ def remove_urls (vTEXT): #this function erases any URL http /https from any Stri
 
 
 def replace_elements(line):
-    to_replace = [";",":", "?", ".", "'", "!", "(", ")", "-", "'i", "';", '"', '"i' ]
+    to_replace = string.punctuation.replace("#", "").replace("@","")
     for element in to_replace:
         line = line.replace(element, " ")
              
