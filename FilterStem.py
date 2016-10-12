@@ -37,15 +37,9 @@ def remove_urls (vTEXT): #this function erases any URL http /https from any Stri
 
 def f_line_filter (line):
          line= remove_urls(line) #call to function remove_urls
-         line = line.replace(";", " ")
-         line = line.replace(':', ' ')
-         line = line.replace('?', ' ')
-         line = line.replace('.', ' ')
-         line = line.replace("'", ' ')
-         line = line.replace('!', ' ')
-         line = line.replace('(', ' ')
-         line = line.replace(')', ' ')
-         line = line.replace('-', ' ')
+         to_replace = [";",":", "?", ".", "'", "!", "(", ")", "-", "'i", "';", '"', '"i' ]
+         for element in to_replace:
+             line = line.replace(element, " ")
          words_stemed= [st.stem(i) for i in line.lower().split() if i not in stop ] # removed the stopwords and stem it
          #words_filtered_stemmed_lancaster= [stemmer.stem(i) for i in line.lower().split() if i not in stop ] #this stemming is AWKARD
          #  print (words_filtered)
@@ -55,10 +49,9 @@ def f_line_filter (line):
 
 def f_line_filter_hashment (line):
      line= remove_urls(line) #call to function remove_urls
-     line = line.replace(";", " ")
-     line = line.replace(':', ' ')
-     line = line.replace('?', ' ')
-     line = line.replace('.', ' ')
+     to_replace = [";",":", "?", ".", "'", "!", "(", ")", "-", "'i", "';", '"', '"i' ]
+     for element in to_replace:
+         line = line.replace(element, " ")
      words_filtered = [i for i in line.lower().split() if i not in stop ] #here are removed the stopwords and store it in string words_filtered
      words_stemed= [st.stem(i) for i in line.lower().split() if i not in stop ] # this stemming is AWKARD
      words_no_has=[i for i in words_stemed if (i not in stop_has and "#" not in i and "@" not in i)] 
@@ -67,8 +60,8 @@ def f_line_filter_hashment (line):
      
 
 #for line in f:
-    # line_filtered= f_line_filter(line) #call to function line_filter
-    # print(line_filtered)
+ #    line_filtered= f_line_filter(line) #call to function line_filter
+  #   print(line_filtered)
     # line_filtered_has= f_line_filter_hashment(line) #call to function line_filter
     #print(line_filtered_has)
     
