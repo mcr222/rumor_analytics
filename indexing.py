@@ -3,7 +3,7 @@
 
 def buildIndex(diction):
 	dictionary=diction
-	file_out = open('tweetindex.txt', 'w')
+	file_out = open('tweetindex.csv', 'w')
 	for term in sorted(dictionary):
 		tweetIDs=dictionary[term]
 		file_out.write(term+"; ")

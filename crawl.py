@@ -114,7 +114,7 @@ def crawl(keywordstr):
 	file_raw_tweet.close()
 	return diction
 
-crawl('final exam')
+#crawl('final exam')
 
 #----use this if you want to crawl from your own timeline----
 #get 20 tweets in my timeline

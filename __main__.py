@@ -3,5 +3,5 @@ from indexing import buildIndex
 
 
 if __name__ == "__main__":
-	keyword = "football"
+	keyword = "futbol"
 	buildIndex(crawl(keyword))
