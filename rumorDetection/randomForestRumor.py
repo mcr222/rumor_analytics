@@ -1,10 +1,8 @@
 from sklearn.ensemble import RandomForestClassifier
 from sklearn import preprocessing
 from numpy import asarray
-from IPython.consoleapp import classes
 import csv
-from numpy.core.test_rational import numerator
-from pyasn1_modules.rfc2314 import Attributes
+
 
 def openFile():
     with open('TS4.csv', 'rb') as f:
@@ -52,22 +50,24 @@ def makeNumericMatrix(X):
             i=i+1
             numericMatrix.append(newRow)
     return numericMatrix
-
-allAttributes= openFile()
-x=['NO','YES','NO','NO','NO','0','0','35274','41788','21566']
-allAttributes[0].append(x)
-attributes=makeNumericMatrix(allAttributes[0])
-xNum=[attributes[-1]]
-del attributes[-1]
-clf = RandomForestClassifier(n_estimators=100)
-Y=allAttributes[1]
-clf = clf.fit(attributes,Y)
-X_Score=  clf.score(attributes, Y)
-X_random = clf.predict(xNum)
-X_prob=clf.predict_proba(xNum)
-x_path=clf.decision_path(xNum)
-print(X_random)
-print(X_Score)
-print(X_prob)
-print(x_path)
-#print attributes
+def main(instances):
+    allAttributes= openFile()
+    for instance in instances:
+        allAttributes[0].append(instance)
+    attributes=makeNumericMatrix(allAttributes[0])
+    xNum=[attributes[-len(instances)]]
+    del attributes[-len(xNum)]
+    clf = RandomForestClassifier(n_estimators=100)
+    Y=allAttributes[1]
+    clf = clf.fit(attributes,Y)
+    X_Score=  clf.score(attributes, Y)
+    X_random = clf.predict(xNum)
+    X_prob=clf.predict_proba(xNum)
+    x_path=clf.decision_path(xNum)
+    print(X_random)
+    print(X_Score)
+    print(X_prob)
+    print(x_path)
+    #print attributes
+x=[['NO','YES','NO','NO','NO','0','0','35274','41788','21566']]
+main(x)
