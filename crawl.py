@@ -3,6 +3,9 @@
 import tweepy,FilterStem #pip install tweepy
 from TwitterSearch import * #pip install TwitterSearch 
 import json
+import spam_text_detection
+# from SentimentAnalysis.SentimentAnalysis import SentimentAnalysis as sentAn
+import userRumorSpreader
 
 
 consumer_key='yy2MNJhZohRNuLwmAGEpbxg29'
@@ -12,6 +15,7 @@ access_token_secret='EELcpttFpHX74eTRx9GsKOYJmZqWJNWk6pgnSqvrTGp1Q'
 
 auth = tweepy.OAuthHandler(consumer_key, consumer_secret)
 auth.set_access_token(access_token, access_token_secret)
+api = tweepy.API(auth)
 
 def save_dictionary(name, dict):
 	f = open(name,"w")
@@ -24,13 +28,14 @@ def read_dictionary(name):
 #input: none
 #output: dictionary of: filtered word -> (docID,freq)
 def crawl(keywordstr, diction=None, tweet_id_to_text=None, tweet_id_to_cluster=None,cluster=0):
+	
 	docID = 1
 	if(diction==None):
 		diction ={}
 	
 	file_out = open('metadata.txt', 'w')
 	file_raw_tweet = open('tweets.csv', 'w')
-	file_out.write('docID;username;userID;uLocation;tweetID;numberOfRetweet;numberOfFavorites;inReplytoStatusID;isHashtagAvailable;mentions' + '\n')
+	file_out.write('docID;username;userID;uLocation;tweetID;numberOfRetweet;numberOfFavorites;inReplytoStatusID;isHashtagAvailable;mentions;spam' + '\n')
 	file_raw_tweet .write('docID;tweetID;tweetText;Hashtags;Mentions' + '\n')
 
 	#Store the tweet text in a map so it can be easily retrieved (for clustering evaluation)
@@ -68,8 +73,21 @@ def crawl(keywordstr, diction=None, tweet_id_to_text=None, tweet_id_to_cluster=N
 			hashtag_list_str = ''
 			mentions = tweet['entities']['user_mentions']
 			mentions_str=''
+			print status
+# 			spam_score = spam_text_detection.spam_tweet_prob(status)
+# 			print "Spam score"
+# 			print spam_score
+			
+			sentAn = SentimentAnalysis()
+			_,_,positive_score,negative_score,neutral_score = sentAn.Main_performSentimentAnalysis(status)
+			print "Positive sentiment analysis score"
+			print positive_score
+			
+# 			user_rumor_score = userRumorSpreader.userMetaCrawl(api, uID)
+# 			print "User rumor score"
+# 			print user_rumor_score
 
-
+		
 			#print to console
 # 			print('@' + username)
 # 			print('id: ' + str(uID))
@@ -105,7 +123,9 @@ def crawl(keywordstr, diction=None, tweet_id_to_text=None, tweet_id_to_cluster=N
 # 				print('mentions: None')
 # 			print('\n')
 		    #write metadata to external file
-			file_out.write(str(docID) + ';' + username + ';' + str(uID) + ';' + uLocation + ';' + tweet_id + ';' + str(retweets) + ';' + str(favorite_count) + ';' + in_reply_to_status_id + ';' + str(isHashtagAvailable) + ';' + hashtag_list_str + ';' + mentions_str + '\n')
+			file_out.write(str(docID) + ';' + username + ';' + str(uID) + ';' + uLocation + ';' + tweet_id + ';' + str(retweets) + ';' + str(favorite_count) + ';' 
+						+ in_reply_to_status_id + ';' + str(isHashtagAvailable) + ';' + hashtag_list_str + ';' + mentions_str 
+						+ ';' + str(spam_score) + ';' + str(spam_score) + ';' + str(user_rumor_score) + '\n')
 			
 			#write tweets to external file
 			file_raw_tweet.write(str(docID) + ';' + tweet_id + ';' + status + ';' + hashtag_list_str + ';' + mentions_str + '\n')
@@ -136,7 +156,7 @@ def crawl(keywordstr, diction=None, tweet_id_to_text=None, tweet_id_to_cluster=N
 	
 	return diction, tweet_id_to_text, tweet_id_to_cluster
 
-#crawl('final exam')
+crawl('final exam')
 
 #----use this if you want to crawl from your own timeline----
 #get 20 tweets in my timeline
