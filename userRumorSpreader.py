@@ -74,8 +74,11 @@ def randomForest(unlabeledInstances):
         #print(X_random)
         #print(X_Score)
         #print(X_prob)
-        return X_random     
-            
+        return column(X_prob,1)    
+
+def column(matrix, i):
+    return [row[i] for row in matrix]
+     
 def n_lower_chars(string):
     return sum(1 for c in string if c.islower())
 
@@ -141,17 +144,14 @@ def get_all_tweets(api, screen_name):
        
 def run50random(outtweets):
     labels=randomForest(outtweets)
-    numberOfRumors=0
+    sum=0
     for x in labels:
-        if x == "R":
-            numberOfRumors=numberOfRumors+1 
-    rumorRatio=numberOfRumors/len(outtweets)
+        sum=sum+x
+    rumorRatio=sum/len(outtweets)
     return rumorRatio
         
-def userMetaCrawl(api, userId):
+def userMetaCrawl(api,userId):
     print "Getting data from user: "+ str(userId)
-
     outtweets=get_all_tweets(api, userId)
     rumorPercent=run50random(outtweets)
-   
     return rumorPercent
