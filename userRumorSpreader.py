@@ -70,7 +70,7 @@ def randomForest(unlabeledInstances):
         X_Score=  clf.score(attributes, Y)
         X_random = clf.predict(xNum)
         X_prob=clf.predict_proba(xNum)
-        x_path=clf.decision_path(xNum)
+        #x_path=clf.decision_path(xNum)
         #print(X_random)
         #print(X_Score)
         #print(X_prob)
@@ -148,11 +148,10 @@ def run50random(outtweets):
     rumorRatio=numberOfRumors/len(outtweets)
     return rumorRatio
         
-def userMetaCrawl(api, userId):      
-    try:
-        outtweets=get_all_tweets(api, userId)
-        rumorPercent=run50random(outtweets)
-    except:
-        rumorPercent = None
-        pass        
+def userMetaCrawl(api, userId):
+    print "Getting data from user: "+ str(userId)
+
+    outtweets=get_all_tweets(api, userId)
+    rumorPercent=run50random(outtweets)
+   
     return rumorPercent
