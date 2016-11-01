@@ -148,23 +148,5 @@ def userMetaCrawl(userId):
     except:
         pass        
     return rumorPercent
-
-def openInputFile():
-    with open('inputFile.csv', 'rb') as fin: #
-        reader=csv.reader(fin,delimiter=';')
-        userids=[]
-        for row in reader:
-            userid=row[1]#user ids in second column!!!!!! NEEDS TO BE CHECKED
-            userids.append(userid)
-    return userids
-
-def main():
-    establishConnection()
-    userids=openInputFile()
-    percentages=[]
-    for userid in userids:
-        attributes=userMetaCrawl(id)
-        percentages.append(attributes)
-    return percentages
-
-print main()
+establishConnection()
+print userMetaCrawl(587988447)

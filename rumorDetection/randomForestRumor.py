@@ -63,7 +63,7 @@ def featureExtractionfromID(tweetids):
     establishConnection()
     for id in tweetids:
         attributes=[]       
-        try:  
+        try:
             tweet = api.get_status(id)
             text= tweet.text
             print 'One tweet retrieved...'
@@ -133,3 +133,4 @@ def main():
         print(X_prob)
         return X_random             
 print main()
+#
