@@ -4,7 +4,8 @@ import tweepy,FilterStem #pip install tweepy
 from TwitterSearch import * #pip install TwitterSearch 
 import json
 import spam_text_detection
-# from SentimentAnalysis.SentimentAnalysis import SentimentAnalysis as sentAn
+
+from SentimentAnalysis import SentimentAnalysis
 import userRumorSpreader
 
 
@@ -78,11 +79,14 @@ def crawl(keywordstr, diction=None, tweet_id_to_text=None, tweet_id_to_cluster=N
 # 			print "Spam score"
 # 			print spam_score
 			
-			sentAn = SentimentAnalysis()
-			_,_,positive_score,negative_score,neutral_score = sentAn.Main_performSentimentAnalysis(status)
-			print "Positive sentiment analysis score"
-			print positive_score
-			
+			sentimentAnalysis = SentimentAnalysis()
+			result = sentimentAnalysis.Main_performSentimentAnalysis(status)
+			print 'tweet: ' + result[0] # tweet text
+			print 'sentiment label: ' + result[1] # sentiment label
+			print 'pos score: ' + result[2] # positive score
+			print 'neg score: ' + result[3] # negative score
+			print 'neu score: '+ result[4] # neutral score
+			print 'Done'
 # 			user_rumor_score = userRumorSpreader.userMetaCrawl(api, uID)
 # 			print "User rumor score"
 # 			print user_rumor_score

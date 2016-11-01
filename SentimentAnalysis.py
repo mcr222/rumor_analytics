@@ -91,7 +91,11 @@ class SentimentAnalysis(object):
         NegScore =  str(dist.prob(self.__negativeLabel))
         NeuScore =  str(dist.prob(self.__neutralLabel))
         #output.append((inputTweet, sentiment, 'PosScore = ' + PosScore, 'NegScore = ' + NegScore, 'NeuScore = ' + NeuScore))
-        output.append((inputTweet, sentiment, PosScore, NegScore, NeuScore))
+        output.append(inputTweet)
+        output.append(sentiment)
+        output.append(PosScore)
+        output.append(NegScore)
+        output.append(NeuScore)
         return output
     
     def performSentimentAnalysis(self):       
