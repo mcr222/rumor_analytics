@@ -12,7 +12,7 @@ from nltk.corpus import stopwords
 import string
 
 
-#I dot know yet how to filter things like ; : ;;, .... cant add more to this stopwords
+
 stemmer = SnowballStemmer("english")
 st = LancasterStemmer()
 
@@ -52,6 +52,7 @@ def f_line_filter (line):
          ##print(words_filtered_stemmed_snowball)
          #file_out.write()
         return(words_stemed)
+
 
 def f_line_filter_hashment (line):
     line= remove_urls(line) #call to function remove_urls
