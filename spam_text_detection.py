@@ -2,13 +2,13 @@ from collections import Counter
 from nltk import NaiveBayesClassifier, classify
 import FilterStem
 import random
-from twitter import *
+from TwitterSearch import * #pip install TwitterSearch 
+import crawl
 
 error_count=0
 classifier_tweet={}
 classifier_sms={}
-
-
+random_string="hello world"
 
 
 
@@ -24,20 +24,34 @@ def get_features(text):
 
 def get_random_tweets():
     #still using dummy:
-    return["Hey, check this out! http:t.co/12121","Justin Bieber is a girl","asasasas"]
-    #consumer_key='yy2MNJhZohRNuLwmAGEpbxg29'
-    #consumer_secret='YWplgn58vd5OAtJehKRQgCYe9Oi20YI01RwBFgkkGG2rSlv8Gi'
-    #access_token='777483763597074432-ftrzRrPw2vBNyiADa02dAlcinNnYXSL'
-    #access_token_secret='EELcpttFpHX74eTRx9GsKOYJmZqWJNWk6pgnSqvrTGp1Q'
+    global random_string
+    consumer_key='yy2MNJhZohRNuLwmAGEpbxg29'
+    consumer_secret='YWplgn58vd5OAtJehKRQgCYe9Oi20YI01RwBFgkkGG2rSlv8Gi'
+    access_token='777483763597074432-ftrzRrPw2vBNyiADa02dAlcinNnYXSL'
+    access_token_secret='EELcpttFpHX74eTRx9GsKOYJmZqWJNWk6pgnSqvrTGp1Q'
+    try:    
+        tso = TwitterSearchOrder()
+        #keyw=raw_input('Input search term:')
+        #tso.set_keywords([keyw]) #insert search keyword here
+        tso.set_keywords([random.choice(random_string.split())])
+        tso.set_language('en')
 
-    #config = {
-    #    "consumer_key" : consumer_key,
-    #    "consumer_secret" : consumer_secret,
-    #    "access_token" : access_token,
-    #    "access_token_secret" : access_token_secret
-    #}
-    #twitter = Twitter(auth = OAuth(config["access_token"], config["access_token_secret"], config["consumer_key"], config["consumer_secret"]))
-    #return twitter.statuses.user_timeline(user_id = random.randint(0,1000000), count=200)
+        ts = TwitterSearch(
+                    consumer_key = consumer_key,
+                    consumer_secret = consumer_secret,
+                    access_token = access_token,
+                    access_token_secret = access_token_secret
+                )
+        statuses=[]
+        for tweet in ts.search_tweets_iterable(tso):
+            tweete=tweet['text'].replace('\n', ' ').encode('ascii','ignore')
+            statuses.append(tweete)
+            random_string=tweete
+            #print random_string
+    except TwitterSearchException as e: #catch errors
+        print(e)
+    return statuses
+        
 
 #Input: tweet (string)
 #Output: probability that tweet is spam

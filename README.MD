@@ -20,6 +20,8 @@ A short description of the motivation behind the creation and maintenance of the
     nltk.download()
     d
     all
+    pip install twitter
+
     
 
 ## API Reference
