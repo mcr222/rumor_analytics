@@ -4,6 +4,7 @@
 def buildIndex(diction):
 	dictionary=diction
 	file_out = open('tweetindex.csv', 'w')
+	all_df = []
 	for term in sorted(dictionary):
 		tweetIDs=dictionary[term]
 		file_out.write(term+"; ")
@@ -16,6 +17,7 @@ def buildIndex(diction):
 			else:
 				frequency_map[idtweet]=frequency_map[idtweet]+1
 		leng=len(frequency_map)
+		all_df.append(leng)
 		iterator=0		
 		for idtweet in sorted(frequency_map):
 			file_out.write(str(idtweet)+","+str(frequency_map[idtweet]))
@@ -25,3 +27,4 @@ def buildIndex(diction):
 				file_out.write(";")
 			iterator=iterator+1
 	file_out.close()
+	return all_df

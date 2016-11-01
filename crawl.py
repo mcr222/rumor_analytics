@@ -23,16 +23,23 @@ def read_dictionary(name):
 
 #input: none
 #output: dictionary of: filtered word -> (docID,freq)
-def crawl(keywordstr):
+def crawl(keywordstr, diction=None, tweet_id_to_text=None, tweet_id_to_cluster=None,cluster=0):
 	docID = 1
-	diction ={}
+	if(diction==None):
+		diction ={}
+	
 	file_out = open('metadata.txt', 'w')
-	file_raw_tweet = open('tweets.txt', 'w')
+	file_raw_tweet = open('tweets.csv', 'w')
 	file_out.write('docID;username;userID;uLocation;tweetID;numberOfRetweet;numberOfFavorites;inReplytoStatusID;isHashtagAvailable;mentions' + '\n')
 	file_raw_tweet .write('docID;tweetID;tweetText;Hashtags;Mentions' + '\n')
 
 	#Store the tweet text in a map so it can be easily retrieved (for clustering evaluation)
-	tweet_id_to_text = {}
+	if(tweet_id_to_text==None):	
+		tweet_id_to_text = {}
+		
+	if(tweet_id_to_cluster==None):
+		tweet_id_to_cluster = {}
+		
 	#search tweet
 	try:
 		tso = TwitterSearchOrder()
@@ -64,39 +71,39 @@ def crawl(keywordstr):
 
 
 			#print to console
-			print('@' + username)
-			print('id: ' + str(uID))
+# 			print('@' + username)
+# 			print('id: ' + str(uID))
 			if uLocation=='':
 				uLocation = 'None'
 			else:
 				uLocation
-				print('user location: ' + uLocation)
-			print(status)
-			print('retweeted ' + str(retweets) + ' times')
-			print('hashtag: ')
+# 				print('user location: ' + uLocation)
+# 			print(status)
+# 			print('retweeted ' + str(retweets) + ' times')
+# 			print('hashtag: ')
 			if len(hashtag_list)>0:
 				isHashtagAvailable = 1
 				for i in hashtag_list:
-					print(i['text'].encode('ascii','ignore'))
+# 					print(i['text'].encode('ascii','ignore'))
 					hashtag_list_str = hashtag_list_str + '#' + i['text'].encode('ascii','ignore')
 			else:
 				isHashtagAvailable = 0
-			print(hashtag_list_str)
-			print('favcount: ' + str(favorite_count))
+# 			print(hashtag_list_str)
+# 			print('favcount: ' + str(favorite_count))
 			if in_reply_to_status_id is None:
 				in_reply_to_status_id = 'None'
 			else:
 				None
-			print('in reply to status id: ' + in_reply_to_status_id)
+# 			print('in reply to status id: ' + in_reply_to_status_id)
 			if len(mentions)>0:
 				isMentionAvailable=1
 				for j in mentions:
 					mentions_str = mentions_str + '@' + j['screen_name']
-				print('mentions: ' + mentions_str)
+# 				print('mentions: ' + mentions_str)
 			else:
 				isMentionAvailable=0
-				print('mentions: None')
-			print('\n')
+# 				print('mentions: None')
+# 			print('\n')
 		    #write metadata to external file
 			file_out.write(str(docID) + ';' + username + ';' + str(uID) + ';' + uLocation + ';' + tweet_id + ';' + str(retweets) + ';' + str(favorite_count) + ';' + in_reply_to_status_id + ';' + str(isHashtagAvailable) + ';' + hashtag_list_str + ';' + mentions_str + '\n')
 			
@@ -104,6 +111,7 @@ def crawl(keywordstr):
 			file_raw_tweet.write(str(docID) + ';' + tweet_id + ';' + status + ';' + hashtag_list_str + ';' + mentions_str + '\n')
 
 			tweet_id_to_text[tweet_id] = status
+			tweet_id_to_cluster[tweet_id] = cluster
 			
 			docID = docID + 1
 
@@ -125,8 +133,8 @@ def crawl(keywordstr):
 
 	file_out.close()
 	file_raw_tweet.close()
-	save_dictionary("tweet_text_dictionary.json", tweet_id_to_text)
-	return diction
+	
+	return diction, tweet_id_to_text, tweet_id_to_cluster
 
 #crawl('final exam')
 
