@@ -2,8 +2,17 @@ from collections import Counter
 from nltk import NaiveBayesClassifier, classify
 import FilterStem
 import random
+from twitter import *
 
 error_count=0
+classifier_tweet={}
+classifier_sms={}
+
+
+
+
+
+
 def get_features(text):
     global error_count
     try:
@@ -12,38 +21,148 @@ def get_features(text):
         return word_count
     except:
         error_count += 1
+
+def get_random_tweets():
+    #still using dummy:
+    return["Hey, check this out! http:t.co/12121","Justin Bieber is a girl","asasasas"]
+    #consumer_key='yy2MNJhZohRNuLwmAGEpbxg29'
+    #consumer_secret='YWplgn58vd5OAtJehKRQgCYe9Oi20YI01RwBFgkkGG2rSlv8Gi'
+    #access_token='777483763597074432-ftrzRrPw2vBNyiADa02dAlcinNnYXSL'
+    #access_token_secret='EELcpttFpHX74eTRx9GsKOYJmZqWJNWk6pgnSqvrTGp1Q'
+
+    #config = {
+    #    "consumer_key" : consumer_key,
+    #    "consumer_secret" : consumer_secret,
+    #    "access_token" : access_token,
+    #    "access_token_secret" : access_token_secret
+    #}
+    #twitter = Twitter(auth = OAuth(config["access_token"], config["access_token_secret"], config["consumer_key"], config["consumer_secret"]))
+    #return twitter.statuses.user_timeline(user_id = random.randint(0,1000000), count=200)
+
+#Input: tweet (string)
+#Output: probability that tweet is spam
+def spam_sms_prob(tweet):
+    global classifier_sms
+    dist = classifier_sms.prob_classify(get_features(tweet))
+    #for label in dist.samples():
+    #    if(label=="spam"):
+    return dist.prob("spam")
+
+#Input: tweet (string)
+#Output: probability that tweet is spam
+def spam_tweet_prob(tweet):
+    global classifier_tweet
+    dist = classifier_tweet.prob_classify(get_features(tweet))
+    #for label in dist.samples():
+    #    if(label=="spam"):
+    return dist.prob("spam")
+    #return 0
+
+
+#Input:-
+#Output:- (trained classifier)
+def build_spam_classifier():
+    sms_data = []
+    tweet_data=[]
+    global error_count
+    #sms spam
+    spam_data = open("Spam_dataset/SMSSpamCollection_spam.txt")
+    for line in spam_data:
+        feature = get_features(line)
+        if feature is not None:
+            sms_data.append((feature, "spam"))
+        else:
+            error_count += 1
+    spam_data = open("Spam_dataset/tweet-spam.txt")
+    for line in spam_data:
+        feature = get_features(line)
+        if feature is not None:
+            tweet_data.append((feature, "spam"))
+            #sms_data.append((feature, "spam"))
+        else:
+            error_count += 1
+    #sms ham
+    ham_data = open("Spam_dataset/SMSSpamCollection_ham.txt")
+    for line in ham_data:
+        feature = get_features(line)
+        if feature is not None:
+            sms_data.append((feature, "ham"))
+        else:
+            error_count += 1
+    #tweet ham
+    ham_data = open("Spam_dataset/tweet-ham.txt")
+    for line in ham_data:
+        feature = get_features(line)
+        if feature is not None:
+            tweet_data.append((feature, "ham"))
+            #sms_data.append((feature, "ham"))
+        else:
+            error_count += 1            
+    #print error_count
+    #print len(sms_data)
+    random.shuffle(sms_data)
+    random.shuffle(tweet_data)
+    training_set = sms_data[:int(len(sms_data)*0.8)]
+    test_set = sms_data[int(len(sms_data)*0.8):]
+    training_set_tweet = tweet_data[:int(len(tweet_data)*0.8)]
+    test_set_tweet = tweet_data[int(len(tweet_data)*0.8):]
+    global classifier_sms
+    global classifier_tweet
+    classifier_sms = NaiveBayesClassifier.train(training_set)
+    classifier_tweet = NaiveBayesClassifier.train(training_set_tweet)
     
+    extra_data=[]
+    for i in xrange(1,50):
+        random_tweets=get_random_tweets()
+        for tweet in random_tweets:
+            sms_spam_prob=spam_sms_prob(tweet)
+            tweet_spam_prob=spam_tweet_prob(tweet)
+            feature = get_features(tweet)
+            if(sms_spam_prob>0.90 and tweet_spam_prob>0.90):
+                if feature is not None:
+                    extra_data.append((feature,"spam"))
+            if(sms_spam_prob<0.10 and tweet_spam_prob<0.10):
+                if feature is not None:
+                    extra_data.append((feature,"ham"))
+    #print(extra_data)
+    training_set_tweet.extend(extra_data)
+    classifier_tweet = NaiveBayesClassifier.train(training_set_tweet)
+    #classifier_tweet = NaiveBayesClassifier.train(training_set2)
+    ###print classifier_sms.show_most_informative_features(20)
+    #print classifier_tweet.show_most_informative_features(20)
+    ###print classify.util.accuracy(classifier_sms,test_set)
+    ###print classify.util.accuracy(classifier_sms,tweet_data)
 
-all_data = []
-
-spam_data = open("Spam_dataset/SMSSpamColletion_spam.txt")
-for line in spam_data:
-    feature = get_features(line)
-    if feature is not None:
-        all_data.append((feature, "spam"))
-    else:
-        error_count += 1 
-
-ham_data = open("Spam_dataset/SMSSpamColletion_ham.txt")
-for line in ham_data:
-    feature = get_features(line)
-    if feature is not None:
-        all_data.append((feature, "ham"))
-    else:
-        error_count += 1 
                      
-print all_data[0:3]
-print len(all_data)
-print error_count
-random.shuffle(all_data)
-training_set = all_data[:int(len(all_data)*0.8)]
-test_set = all_data[int(len(all_data)*0.8):]
+#print sms_data[0:3]
 
 
-classifier = NaiveBayesClassifier.train(training_set)
-print classify.accuracy(classifier, training_set)
-print classify.accuracy(classifier, test_set)
-print classifier.show_most_informative_features(20)
-print classifier.classify(get_features('now! now! now! award ton latest txt'))
 
 
+#Input: tweet (string)
+#Output: "spam" or "ham" (string)
+def spam_classify(tweet):
+    return classifier_tweet.classify(get_features(tweet))
+#return (classifier_sms.classify(get_features(tweet)),classifier_tweet.classify(get_features(tweet)))
+    
+def show_most_informative_features(number):
+    return classifier_tweet.show_most_informative_features(number)
+
+#if __name__ == "__main__":
+build_spam_classifier()
+#    a=spam_classify("Subject: customer list   - - - - - - - - - - - - - - - - - - - - - - forwarded by gary w lamphier / hou / ect on 01 / 28 / 2000  04 : 57 pm - - - - - - - - - - - - - - - - - - - - - - - - - - -    from : lee l papayoti on 01 / 19 / 2000 05 : 30 pm  to : james a ajello / hou / ect @ ect , wendy king / corp / enron @ enron , jim crump / corp / enron @ enron , andrew wilson / corp / enron @ enron , glenn wright / corp / enron @ enron   cc : gary w lamphier / hou / ect @ ect , james mackey / hou / ect @ ect subject : ")
+#    print(a)
+#    a=spam_classify("If your in pain call Oriental Therapies at 624-158-1072 Office San Jose del cabo in front of Mcdonlads")
+#    print(a)
+#    a=spam_tweet_prob("I really love Justin Bieber!")
+#    print(a)
+#    a=spam_tweet_prob("Hey, check this out!")
+#    print(a)
+#     a=spam_tweet_prob("Justin Bieber is a girl")
+#     print(a)
+#     a=spam_tweet_prob("Hey, check this out: Will Smith is dead! http:t.co/12212")
+#     print(a)
+#     a=spam_tweet_prob("Hey, check this out to gain a new follower: http:t.co/12212")
+#     print(a)
+#     a=spam_tweet_prob("Follow who retweet this!")
+#     print(a)
