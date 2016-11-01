@@ -7,6 +7,7 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn import preprocessing
 import numpy
 import sys
+
 def openTS():
     with open('TS6.csv', 'rb') as fin: 
         reader=csv.reader(fin,delimiter=';')
@@ -18,6 +19,7 @@ def openTS():
             instances.append(instance)
             Y.append(row[-1])
     return instances, Y
+
 def transformMatrixToNum(X):
     x_array=asarray(X)
     x_trans=[]
@@ -72,11 +74,14 @@ def randomForest(unlabeledInstances):
         #print(X_random)
         #print(X_Score)
         #print(X_prob)
-        return X_random             
+        return X_random     
+            
 def n_lower_chars(string):
     return sum(1 for c in string if c.islower())
+
 def n_upper_chars(string):
     return sum(1 for c in string if c.isupper())
+
 def establishConnection():
     global api
     consumer_key='yy2MNJhZohRNuLwmAGEpbxg29'
@@ -87,7 +92,7 @@ def establishConnection():
     auth.set_access_token(access_token, access_token_secret)
     api = tweepy.API(auth)
 
-def get_all_tweets(screen_name):
+def get_all_tweets(api, screen_name):
     #Twitter only allows access to a users most recent 3240 tweets with this method
     #initialize a list to hold all the tweepy Tweets
     alltweets = []    
@@ -131,7 +136,9 @@ def get_all_tweets(screen_name):
         tweetInfo = [isRT,hasBeenRT,isReply,tweet.retweet_count,words, chars,whitespaces,hastags,ats,lower,upper] 
         outtweets.append(tweetInfo)
     return outtweets
-    fieldnames=['Is this a RT?','Has it been RT?','is it  a reply?','#ofRT','#ofWords','#ofChars','#ofwhiteSpaces','#ofHastags','#ofAts','#ofLower','#ofUpper']   
+
+#     fieldnames=['Is this a RT?','Has it been RT?','is it  a reply?','#ofRT','#ofWords','#ofChars','#ofwhiteSpaces','#ofHastags','#ofAts','#ofLower','#ofUpper']
+       
 def run50random(outtweets):
     labels=randomForest(outtweets)
     numberOfRumors=0
@@ -141,12 +148,11 @@ def run50random(outtweets):
     rumorRatio=numberOfRumors/len(outtweets)
     return rumorRatio
         
-def userMetaCrawl(userId):      
+def userMetaCrawl(api, userId):      
     try:
-        outtweets=get_all_tweets(userId)
+        outtweets=get_all_tweets(api, userId)
         rumorPercent=run50random(outtweets)
     except:
+        rumorPercent = None
         pass        
     return rumorPercent
-establishConnection()
-print userMetaCrawl(587988447)
