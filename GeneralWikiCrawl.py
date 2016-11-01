@@ -17,6 +17,9 @@ import FilterStem
 import string
 import FilterStem
 import WikiCrawlFootball
+import WikiCrawlPolitics
+
+
 
 wikipedia.set_lang("en")
 
@@ -27,11 +30,13 @@ def cleanhtml(raw_html):
  
 def GeneralWikiCrawl(): 
     diction ={}
-    topics=["technology", "politics", "health", "fashion", "nature", "films", "art", "travel", "beauty", "gossip", "basketball", "university" ] 
+    topics=["technology", "health", "fashion", "nature", "films", "art", "travel", "beauty", "gossip", "basketball", "university" ] 
     foot="football"
+    poli="politics"
     
     for item in topics :  
         foot_list = WikiCrawlFootball.CrawlFootball()
+        poli_list = WikiCrawlPolitics.CrawlPolitics()
         page = wikipedia.WikipediaPage(item).html()
         links= wikipedia.WikipediaPage(item).links # will merge with results from link [1] link [2] 
         line_filtered = FilterStem.f_line_filter_hashment(cleanhtml(page))
@@ -51,6 +56,14 @@ def GeneralWikiCrawl():
                 diction[term]=[foot]
              else:
                  diction[term].append(foot)
+            
+        for term in poli_list:
+             term = term.encode('utf-8')
+             value=diction.get(term,None)
+             if value==None:
+                diction[term]=[poli]
+             else:
+                 diction[term].append(poli)    
             
         for term in line_filtered:
              term = term.encode('utf-8')

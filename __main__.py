@@ -1,5 +1,6 @@
 from crawl import crawl, save_dictionary
 from indexing import buildIndex
+import Labels
 
 
 if __name__ == "__main__":
@@ -17,3 +18,7 @@ if __name__ == "__main__":
 	save_dictionary("tweet_text_dictionary.json", tweet_id_to_text)
 	save_dictionary("tweet_cluster_dictionary.json", tweet_id_to_cluster)
 	buildIndex(diction)
+'''
+output= ["trump","clinton", "obama"]
+salida= Labels.SearchLabel(output)
+print salida '''

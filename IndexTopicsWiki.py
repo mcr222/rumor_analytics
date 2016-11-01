@@ -20,7 +20,7 @@ file_out = open('topics.csv', 'w')
 for term in sorted(dictionary):
     if term[0][0].isalpha(): 
         topics=dictionary[term]
-        file_out.write(term+"; ")
+        file_out.write(term+";")
         frequency_map={}
         iterator=0  
         for topic in topics:
