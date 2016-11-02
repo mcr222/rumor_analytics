@@ -4,21 +4,20 @@
 
 # - Setup before running Sentiment Analysis Module
 # - Place following Files in src folder
-#    1. TestingDataInput.txt
-#    2. TrainingData.txt
+#    1. SentimentAnalyzer_TrainedData.pkl
+#    2. WordFeatures.pkl
+#    3. TrainingData.txt
+#
 # - Open command line Python Shell and type following commands
 #    import nltk
 #    nltk.download('punkt')
-#    nltk.download()
-#    A user interface will appear, select (All Packages Section): -> select "vader_lexicon"
 
 # - Calling criteria
 #    sentimentAnalysis = SentimentAnalysis() # Creating class object
-#    sentimentAnalysis.Main_performSentimentAnalysis() # method calling to perform sentiment analysis
+#    sentimentAnalysis.Main_performSentimentAnalysis(tweet) # method calling to perform sentiment analysis
 
 import nltk
 from collections import OrderedDict
-from nltk.sentiment.vader import SentimentIntensityAnalyzer
 import pickle
 import os.path
 
@@ -36,6 +35,9 @@ class SentimentAnalysis(object):
     __wordFeaturesFileName = 'WordFeatures.pkl'
     __testingDataInputFileName = 'TestingDataInput.txt'
     __testingDataOutputFileName = 'testingDataOutput.txt'
+    __positiveLabel = 'positive'
+    __negativeLabel = 'negative'
+    __neutralLabel = 'neutral'
 
     def __init__(self):
         pass
@@ -80,29 +82,21 @@ class SentimentAnalysis(object):
         for word in self.__wordFeatures:
             features['contains(%s)' % word] = (word in document_words)  
         return features
-    
-    def ComputeResults(self):       
-        print self.__classifier.show_most_informative_features(self.__noOfInformativeFeaturesToShow)
-        
-        sid = SentimentIntensityAnalyzer()       
-        fname = self.__testingDataInputFileName
-        inputTweets = [line.rstrip('\n') for line in open(fname)]
-        output = []
-        for inputTweet in inputTweets:      
-            sentiment =  self.__classifier.classify(self.extract_features(inputTweet.split()))            
-            ss = sid.polarity_scores(inputTweet)
-            scores = ''
-            for k in sorted(ss):
-                scores = scores + (k + ': ' + str(ss[k]) + ', ')
-            #output.append((inputTweet, sentiment, scores))
-            output.append((inputTweet, sentiment))
 
-        testingDataOutput = open(self.__testingDataOutputFileName, 'w')
-        testingDataOutput.truncate()
-        for result in output:
-            testingDataOutput.write(str(result) + "\n")
-        testingDataOutput.close()
-        return
+    def ComputeResults(self, inputTweet):       
+        output = []
+        sentiment =  self.__classifier.classify(self.extract_features(inputTweet.split()))  
+        dist = self.__classifier.prob_classify(self.extract_features(inputTweet.split()))
+        PosScore =  str(dist.prob(self.__positiveLabel))
+        NegScore =  str(dist.prob(self.__negativeLabel))
+        NeuScore =  str(dist.prob(self.__neutralLabel))
+        #output.append((inputTweet, sentiment, 'PosScore = ' + PosScore, 'NegScore = ' + NegScore, 'NeuScore = ' + NeuScore))
+        output.append(inputTweet)
+        output.append(sentiment)
+        output.append(PosScore)
+        output.append(NegScore)
+        output.append(NeuScore)
+        return output
     
     def performSentimentAnalysis(self):       
         if os.path.exists(self.__sentimentAnalyzerTrainedDataFileName):
@@ -123,7 +117,10 @@ class SentimentAnalysis(object):
             pickle.dump(self.__classifier, trainedData, pickle.HIGHEST_PROTOCOL)          
     
     # To provide functionality outside the class
-    def Main_performSentimentAnalysis(self):
+    def Main_performSentimentAnalysis(self, inputTweet):
         self.performSentimentAnalysis()
-        self.ComputeResults()
+        return self.ComputeResults(inputTweet)
+    
+    
+    
     
