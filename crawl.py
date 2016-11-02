@@ -4,7 +4,8 @@ import tweepy,FilterStem #pip install tweepy
 from TwitterSearch import * #pip install TwitterSearch 
 import json
 import spam_text_detection
-# from SentimentAnalysis.SentimentAnalysis import SentimentAnalysis as sentAn
+
+from SentimentAnalysis import SentimentAnalysis
 import userRumorSpreader
 
 
@@ -73,16 +74,19 @@ def crawl(keywordstr, diction=None, tweet_id_to_text=None, tweet_id_to_cluster=N
 			hashtag_list_str = ''
 			mentions = tweet['entities']['user_mentions']
 			mentions_str=''
-			print status
+# 			print status
 # 			spam_score = spam_text_detection.spam_tweet_prob(status)
 # 			print "Spam score"
 # 			print spam_score
 			
-			sentAn = SentimentAnalysis()
-			_,_,positive_score,negative_score,neutral_score = sentAn.Main_performSentimentAnalysis(status)
-			print "Positive sentiment analysis score"
-			print positive_score
-			
+			sentimentAnalysis = SentimentAnalysis()
+			result = sentimentAnalysis.Main_performSentimentAnalysis(status)
+			print 'tweet: ' + result[0] # tweet text
+			print 'sentiment label: ' + result[1] # sentiment label
+			print 'pos score: ' + result[2] # positive score
+			print 'neg score: ' + result[3] # negative score
+			print 'neu score: '+ result[4] # neutral score
+			print 'Done'
 # 			user_rumor_score = userRumorSpreader.userMetaCrawl(api, uID)
 # 			print "User rumor score"
 # 			print user_rumor_score
@@ -125,7 +129,7 @@ def crawl(keywordstr, diction=None, tweet_id_to_text=None, tweet_id_to_cluster=N
 		    #write metadata to external file
 			file_out.write(str(docID) + ';' + username + ';' + str(uID) + ';' + uLocation + ';' + tweet_id + ';' + str(retweets) + ';' + str(favorite_count) + ';' 
 						+ in_reply_to_status_id + ';' + str(isHashtagAvailable) + ';' + hashtag_list_str + ';' + mentions_str 
-						+ ';' + str(spam_score) + ';' + str(spam_score) + ';' + str(user_rumor_score) + '\n')
+						+ '\n')
 			
 			#write tweets to external file
 			file_raw_tweet.write(str(docID) + ';' + tweet_id + ';' + status + ';' + hashtag_list_str + ';' + mentions_str + '\n')
@@ -156,7 +160,7 @@ def crawl(keywordstr, diction=None, tweet_id_to_text=None, tweet_id_to_cluster=N
 	
 	return diction, tweet_id_to_text, tweet_id_to_cluster
 
-crawl('final exam')
+# crawl('final exam')
 
 #----use this if you want to crawl from your own timeline----
 #get 20 tweets in my timeline

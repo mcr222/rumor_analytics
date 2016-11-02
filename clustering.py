@@ -11,6 +11,7 @@ from nltk.metrics.distance import jaccard_distance
 from sklearn.cluster import AffinityPropagation
 import matplotlib.pyplot as plt
 import itertools
+import FilterStem
 
 # tweetCriteria = got.manager.TweetCriteria().setQuerySearch('europe refugees').setSince("2015-05-01").setUntil("2015-09-30").setMaxTweets(1)
 # tweet = got.manager.TweetManager.getTweets(tweetCriteria)[0]
@@ -47,15 +48,44 @@ def print_cluster_length(cluster_num, clusters):
         print len(clusters[current_cluster])
 
 
-def print_cluster_tweets(cluster_num, clusters, tweet_id_to_index):
+def print_cluster_tweets(cluster_num, clusters, tweet_id_to_index, tweet_id_to_text):
     for current_cluster in range(cluster_num):
         print("Cluster number: " + str(current_cluster))
-        to_show=10
+        to_show=20
         if(len(clusters[current_cluster])<to_show):
             to_show = len(clusters[current_cluster])
         for i in range(to_show):
             print tweet_id_to_text[clusters[current_cluster][i]]
             print "\n"
+            
+def print_cluster_top_words(cluster_num, clusters, tweet_id_to_index, tweet_id_to_text):
+    top_words = []
+    for current_cluster in range(cluster_num):
+        print("Cluster number: " + str(current_cluster))
+        bag_words = {}
+        for i in range(len(clusters[current_cluster])):
+            list_words = FilterStem.f_line_filter(tweet_id_to_text[clusters[current_cluster][i]])
+            for word in list_words:
+                if(word in bag_words):
+                    bag_words[word] += 1
+                else:
+                    bag_words[word] = 1
+        
+        max_words = 20
+        word_list = [0]*20
+        j=0
+        for key, value in sorted(bag_words.iteritems(), key=lambda (k,v): (v,k), reverse = True):
+            if j<max_words:
+                print "%s: %s" % (key, value)
+                word_list[j]=key
+                j+=1
+            else:
+                break 
+        
+        top_words.append(word_list)
+    
+    return top_words  
+            
        
 def filter_df(df,lb,ub):
     if(df<lb or df>ub):
@@ -69,11 +99,28 @@ def df_statistics(total_tweets):
     for row in indexreader:
         df = len(row)-1
         all_df.append(df)
-    w = total_tweets//50
+    w = total_tweets//75
     lb = np.min(all_df) + w
     ub = np.max(all_df) - w
     csv_file.close()
     return lb,ub
+
+def find_elbow(distortions,num_clusters, default_clusters=2):
+    print "Finding elbow"
+    plt.plot(num_clusters,distortions)
+    plt.show()
+    slope_variations = []
+    previous_slope = distortions[0]-distortions[1]
+    for i in range(2,len(num_clusters)):
+        slope = distortions[i-1]-distortions[i]
+        slope_variation = (previous_slope-slope)
+        previous_slope = slope
+        slope_variations.append(slope_variation)
+    
+    print slope_variations  
+    idx = slope_variations.index(max(slope_variations))
+    print idx
+    return num_clusters[idx+1]
 
 def compute_score(clusters,cluster_num,tweet_id_to_cluster,good_num_clust):
     perm_clusters = itertools.permutations(range(cluster_num))
@@ -114,6 +161,8 @@ def compute_score(clusters,cluster_num,tweet_id_to_cluster,good_num_clust):
 #TODO: this shouldn't be harcoded
 tweet_id_to_text = crawl.read_dictionary("tweet_text_dictionary.json")
 total_tweets = len(tweet_id_to_text)
+tweet_id_to_cluster = crawl.read_dictionary("tweet_cluster_dictionary.json")
+good_num_clust = tweet_id_to_cluster["num_clusters"]
 print "Total number of tweets"
 print total_tweets
 number_terms = 7
@@ -206,19 +255,29 @@ else:
 #method specifies the distance to calculate between clusters
 # label = fclusterdata(data, cluster_num, criterion = "maxclust", metric = cosine_dist, method = "average")
  
-codebook, distortion = kmeans(data, cluster_num)
-label, distortion_element = vq(data,codebook)
-
+distortions = []
+results = []
+clusters = range(4,5)
+for cluster_num in clusters:
+    codebook, distortion = kmeans(data, cluster_num)
+    label, distortion_element = vq(data,codebook)
+    results.append((codebook,label))
+    print "Distortion"
+    print distortion
+    distortions.append(distortion)
+    
+# opt_num_clusters = find_elbow(distortions, clusters,good_num_clust)
+# print opt_num_clusters
+# codebook,label = results[opt_num_clusters]
 
 clusters = [0]*cluster_num
 for j in range(cluster_num):
     clusters[j] = []
      
-tweet_id_to_cluster = crawl.read_dictionary("tweet_cluster_dictionary.json")
-good_num_clust = tweet_id_to_cluster["num_clusters"]
-print "Number elements clusters"
-print tweet_id_to_cluster["num_elements_clust0"]
-print tweet_id_to_cluster["num_elements_clust1"]
+print "Number good elements clusters"
+for clust in range(good_num_clust):
+    print tweet_id_to_cluster["num_elements_clust"+str(clust)]
+
 
 
 for tweet_id in tweet_id_to_index:
@@ -240,5 +299,7 @@ print F1
 
  
 print_cluster_length(cluster_num, clusters) 
-print_cluster_tweets(cluster_num, clusters, tweet_id_to_index)
+top_words = print_cluster_top_words(cluster_num,clusters,tweet_id_to_index, tweet_id_to_text)
+print top_words
+# print_cluster_tweets(cluster_num, clusters, tweet_id_to_index, tweet_id_to_text)
      
