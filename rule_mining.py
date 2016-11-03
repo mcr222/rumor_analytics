@@ -25,7 +25,7 @@ def find_coocurrences(keyword,tf, total_tweets, tweet_id_to_text):
     print total_tweets
     i=0
     for key, value in sorted(tf.iteritems(), key=lambda (k,v): (v,k)):
-        if(value/total_tweets>0.5 and key!=keyword_stemmed and i<max_keywords):
+        if(value/total_tweets>0.6 and key!=keyword_stemmed and i<max_keywords):
             print key
             print value
             print total_tweets

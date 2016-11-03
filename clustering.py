@@ -107,8 +107,7 @@ def df_statistics(total_tweets):
 
 def find_elbow(distortions,num_clusters, default_clusters=2):
     print "Finding elbow"
-    plt.plot(num_clusters,distortions)
-    plt.show()
+    
     slope_variations = []
     previous_slope = distortions[0]-distortions[1]
     for i in range(2,len(num_clusters)):
@@ -119,7 +118,9 @@ def find_elbow(distortions,num_clusters, default_clusters=2):
     
     print slope_variations  
     idx = slope_variations.index(max(slope_variations))
-    print idx
+    print num_clusters[idx+1]
+    plt.plot(num_clusters,distortions)
+    plt.show()
     return num_clusters[idx+1]
 
 def compute_score(clusters,cluster_num,tweet_id_to_cluster,good_num_clust):
@@ -135,13 +136,13 @@ def compute_score(clusters,cluster_num,tweet_id_to_cluster,good_num_clust):
         for i in range(cluster_num):
             clust = clusters[perm[i]]
             TP_clust = 0
-            for id in clust:
-                if(tweet_id_to_cluster[id]==i):
+            for id_clust in clust:
+                if(tweet_id_to_cluster[id_clust]==i):
                     TP_clust += 1
                 else:
                     FP += 1
             if(i<good_num_clust):
-                FN += tweet_id_to_cluster["num_elements_clust"+str(i)] - TP_clust
+                FN += tweet_id_to_cluster["num_elements_clust"+str(i+1)] - TP_clust
                                  
             TP += TP_clust
         P = TP/(TP+FP)
@@ -257,7 +258,7 @@ else:
  
 distortions = []
 results = []
-clusters = range(4,5)
+clusters = range(1,12)
 for cluster_num in clusters:
     codebook, distortion = kmeans(data, cluster_num)
     label, distortion_element = vq(data,codebook)
@@ -266,9 +267,9 @@ for cluster_num in clusters:
     print distortion
     distortions.append(distortion)
     
-# opt_num_clusters = find_elbow(distortions, clusters,good_num_clust)
-# print opt_num_clusters
-# codebook,label = results[opt_num_clusters]
+opt_num_clusters = find_elbow(distortions, clusters,good_num_clust)
+print opt_num_clusters
+codebook,label = results[opt_num_clusters]
 
 clusters = [0]*cluster_num
 for j in range(cluster_num):
@@ -276,7 +277,7 @@ for j in range(cluster_num):
      
 print "Number good elements clusters"
 for clust in range(good_num_clust):
-    print tweet_id_to_cluster["num_elements_clust"+str(clust)]
+    print tweet_id_to_cluster["num_elements_clust"+str(clust+1)]
 
 
 
@@ -301,5 +302,4 @@ print F1
 print_cluster_length(cluster_num, clusters) 
 top_words = print_cluster_top_words(cluster_num,clusters,tweet_id_to_index, tweet_id_to_text)
 print top_words
-# print_cluster_tweets(cluster_num, clusters, tweet_id_to_index, tweet_id_to_text)
-     
+# print_cluster_tweets(cluster_num, clusters, tweet_id_to_index, tweet_id_to_text)  

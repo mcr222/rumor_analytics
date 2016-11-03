@@ -5,7 +5,7 @@ from TwitterSearch import * #pip install TwitterSearch
 import json
 #import spam_text_detection
 
-# from SentimentAnalysis import SentimentAnalysis
+from SentimentAnalysis import SentimentAnalysis
 # import userRumorSpreader
 
 
@@ -28,9 +28,8 @@ def read_dictionary(name):
 
 #input: none
 #output: dictionary of: filtered word -> (docID,freq)
-def crawl(keywordstr, first = True, diction=None, tweet_id_to_text=None, tweet_id_to_cluster=None,cluster=0):
+def crawl(keywordstr, first = True, diction=None, tweet_id_to_text=None, tweet_id_to_cluster=None,cluster=0, docID=1):
 	
-	docID = 1
 	if(diction==None):
 		diction ={}
 		
@@ -41,6 +40,7 @@ def crawl(keywordstr, first = True, diction=None, tweet_id_to_text=None, tweet_i
 		file_raw_tweet = open('tweets.csv', 'w')
 		file_out.write('docID;username;userID;uLocation;tweetID;numberOfRetweet;numberOfFavorites;inReplytoStatusID;isHashtagAvailable;mentions;spam' + '\n')
 		file_raw_tweet .write('docID;tweetID;tweetText;Hashtags;Mentions' + '\n')
+		
 	else:
 		file_out = open('metadata.txt', 'a')
 		file_raw_tweet = open('tweets.csv', 'a')
@@ -85,14 +85,14 @@ def crawl(keywordstr, first = True, diction=None, tweet_id_to_text=None, tweet_i
 # 			print "Spam score"
 # 			print spam_score
 			
-# 			sentimentAnalysis = SentimentAnalysis()
-# 			result = sentimentAnalysis.Main_performSentimentAnalysis(status)
-# 			print 'tweet: ' + result[0] # tweet text
-# 			print 'sentiment label: ' + result[1] # sentiment label
-# 			print 'pos score: ' + result[2] # positive score
-# 			print 'neg score: ' + result[3] # negative score
-# 			print 'neu score: '+ result[4] # neutral score
-# 			print 'Done'
+			sentimentAnalysis = SentimentAnalysis()
+			result = sentimentAnalysis.Main_performSentimentAnalysis(status)
+			print 'tweet: ' + result[0] # tweet text
+			print 'sentiment label: ' + result[1] # sentiment label
+			print 'pos score: ' + result[2] # positive score
+			print 'neg score: ' + result[3] # negative score
+			print 'neu score: '+ result[4] # neutral score
+			print 'Done'
 # 			user_rumor_score = userRumorSpreader.userMetaCrawl(api, uID)
 # 			print "User rumor score"
 # 			print user_rumor_score
@@ -154,10 +154,12 @@ def crawl(keywordstr, first = True, diction=None, tweet_id_to_text=None, tweet_i
 				value=diction.get(term,None)
 				if value==None:
 					diction[term]=[tweet_id]
-					tf[term]=1
+					if(first):
+						tf[term]=1
 				else:
 					diction[term].append(tweet_id)
-					tf[term]+=1
+					if(first):
+						tf[term]+=1
 
 
 	except TwitterSearchException as e: #catch errors
@@ -166,7 +168,7 @@ def crawl(keywordstr, first = True, diction=None, tweet_id_to_text=None, tweet_i
 	file_out.close()
 	file_raw_tweet.close()
 	
-	return diction, tweet_id_to_text, tweet_id_to_cluster, tf
+	return diction, tweet_id_to_text, tweet_id_to_cluster,docID ,tf
 
 # crawl('final exam')
 
