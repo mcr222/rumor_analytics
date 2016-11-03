@@ -42,15 +42,18 @@ def replace_elements(line):
              
     return line
 
-def f_line_filter (line):
+def f_line_filter (line, return_words_without_stem = False):
         line= remove_urls(line) #call to function remove_urls
         line = replace_elements(line)
 
         words_stemed= [st.stem(i) for i in line.lower().split() if i not in stop ] # removed the stopwords and stem it
-         #words_filtered_stemmed_lancaster= [stemmer.stem(i) for i in line.lower().split() if i not in stop ] #this stemming is AWKARD
-         #  print (words_filtered)
-         ##print(words_filtered_stemmed_snowball)
-         #file_out.write()
+        #words_filtered_stemmed_lancaster= [stemmer.stem(i) for i in line.lower().split() if i not in stop ] #this stemming is AWKARD
+        #  print (words_filtered)
+        ##print(words_filtered_stemmed_snowball)
+        #file_out.write()
+        if(return_words_without_stem):
+            words_without_stem = [i for i in line.lower().split() if i not in stop ]
+            return words_stemed,words_without_stem
         return(words_stemed)
 
 

@@ -3,10 +3,10 @@
 import tweepy,FilterStem #pip install tweepy
 from TwitterSearch import * #pip install TwitterSearch 
 import json
-import spam_text_detection
+#import spam_text_detection
 
-from SentimentAnalysis import SentimentAnalysis
-import userRumorSpreader
+# from SentimentAnalysis import SentimentAnalysis
+# import userRumorSpreader
 
 
 consumer_key='yy2MNJhZohRNuLwmAGEpbxg29'
@@ -18,9 +18,9 @@ auth = tweepy.OAuthHandler(consumer_key, consumer_secret)
 auth.set_access_token(access_token, access_token_secret)
 api = tweepy.API(auth)
 
-def save_dictionary(name, dict):
+def save_dictionary(name, save_dictionary):
 	f = open(name,"w")
-	json.dump(dict,f)
+	json.dump(save_dictionary,f)
 	
 def read_dictionary(name):
 	f = open(name,"r")
@@ -28,17 +28,23 @@ def read_dictionary(name):
 
 #input: none
 #output: dictionary of: filtered word -> (docID,freq)
-def crawl(keywordstr, diction=None, tweet_id_to_text=None, tweet_id_to_cluster=None,cluster=0):
+def crawl(keywordstr, first = True, diction=None, tweet_id_to_text=None, tweet_id_to_cluster=None,cluster=0):
 	
 	docID = 1
 	if(diction==None):
 		diction ={}
+		
+	tf = {}
 	
-	file_out = open('metadata.txt', 'w')
-	file_raw_tweet = open('tweets.csv', 'w')
-	file_out.write('docID;username;userID;uLocation;tweetID;numberOfRetweet;numberOfFavorites;inReplytoStatusID;isHashtagAvailable;mentions;spam' + '\n')
-	file_raw_tweet .write('docID;tweetID;tweetText;Hashtags;Mentions' + '\n')
-
+	if(first):
+		file_out = open('metadata.txt', 'w')
+		file_raw_tweet = open('tweets.csv', 'w')
+		file_out.write('docID;username;userID;uLocation;tweetID;numberOfRetweet;numberOfFavorites;inReplytoStatusID;isHashtagAvailable;mentions;spam' + '\n')
+		file_raw_tweet .write('docID;tweetID;tweetText;Hashtags;Mentions' + '\n')
+	else:
+		file_out = open('metadata.txt', 'a')
+		file_raw_tweet = open('tweets.csv', 'a')
+		
 	#Store the tweet text in a map so it can be easily retrieved (for clustering evaluation)
 	if(tweet_id_to_text==None):	
 		tweet_id_to_text = {}
@@ -79,14 +85,14 @@ def crawl(keywordstr, diction=None, tweet_id_to_text=None, tweet_id_to_cluster=N
 # 			print "Spam score"
 # 			print spam_score
 			
-			sentimentAnalysis = SentimentAnalysis()
-			result = sentimentAnalysis.Main_performSentimentAnalysis(status)
-			print 'tweet: ' + result[0] # tweet text
-			print 'sentiment label: ' + result[1] # sentiment label
-			print 'pos score: ' + result[2] # positive score
-			print 'neg score: ' + result[3] # negative score
-			print 'neu score: '+ result[4] # neutral score
-			print 'Done'
+# 			sentimentAnalysis = SentimentAnalysis()
+# 			result = sentimentAnalysis.Main_performSentimentAnalysis(status)
+# 			print 'tweet: ' + result[0] # tweet text
+# 			print 'sentiment label: ' + result[1] # sentiment label
+# 			print 'pos score: ' + result[2] # positive score
+# 			print 'neg score: ' + result[3] # negative score
+# 			print 'neu score: '+ result[4] # neutral score
+# 			print 'Done'
 # 			user_rumor_score = userRumorSpreader.userMetaCrawl(api, uID)
 # 			print "User rumor score"
 # 			print user_rumor_score
@@ -126,7 +132,7 @@ def crawl(keywordstr, diction=None, tweet_id_to_text=None, tweet_id_to_cluster=N
 				isMentionAvailable=0
 # 				print('mentions: None')
 # 			print('\n')
-		    #write metadata to external file
+			#write metadata to external file
 			file_out.write(str(docID) + ';' + username + ';' + str(uID) + ';' + uLocation + ';' + tweet_id + ';' + str(retweets) + ';' + str(favorite_count) + ';' 
 						+ in_reply_to_status_id + ';' + str(isHashtagAvailable) + ';' + hashtag_list_str + ';' + mentions_str 
 						+ '\n')
@@ -148,17 +154,19 @@ def crawl(keywordstr, diction=None, tweet_id_to_text=None, tweet_id_to_cluster=N
 				value=diction.get(term,None)
 				if value==None:
 					diction[term]=[tweet_id]
+					tf[term]=1
 				else:
 					diction[term].append(tweet_id)
+					tf[term]+=1
 
 
 	except TwitterSearchException as e: #catch errors
-	    print(e)
+		print(e)
 
 	file_out.close()
 	file_raw_tweet.close()
 	
-	return diction, tweet_id_to_text, tweet_id_to_cluster
+	return diction, tweet_id_to_text, tweet_id_to_cluster, tf
 
 # crawl('final exam')
 
