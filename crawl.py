@@ -170,7 +170,7 @@ def crawl(keywordstr, first = True, diction=None, tweet_id_to_text=None, tweet_i
 	
 	return diction, tweet_id_to_text, tweet_id_to_cluster,docID ,tf
 
-# crawl('final exam')
+crawl('final exam')
 
 #----use this if you want to crawl from your own timeline----
 #get 20 tweets in my timeline
