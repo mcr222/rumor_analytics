@@ -4,22 +4,19 @@ import rule_mining
 import matplotlib.pyplot as plt
 
 if __name__ == "__main__":
-# 	keyword = raw_input("Please enter search term: ")
-# 
-	docID=1
-# 	diction, tweet_id_to_text, tweet_id_to_cluster,docID, tf = crawl(keyword)
-# 	print len(tweet_id_to_cluster)
-# 	
-# 	keywords = rule_mining.find_coocurrences(keyword, tf,len(tweet_id_to_text),tweet_id_to_text)
-# 	
-# 	print keywords
+	keyword = raw_input("Please enter search term: ")
 
-	keywords = ["politician","exam","music", "movie"]
+	docID=1
+	diction, tweet_id_to_text, tweet_id_to_cluster,docID, tf = crawl(keyword)
+	print len(tweet_id_to_cluster)
+	
+	keywords = rule_mining.find_coocurrences(keyword, tf,len(tweet_id_to_text),tweet_id_to_text)
+	
 	print keywords
+
+# 	keywords = ["politician","exam","music", "basket"]
+# 	print keywords
 	accumulated_tweets = 0
-	diction = None
-	tweet_id_to_text = None
-	tweet_id_to_cluster = None
 	cluster = 1
 	
 	for keyword in keywords:

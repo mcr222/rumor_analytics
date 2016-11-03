@@ -112,7 +112,7 @@ def find_elbow(distortions,num_clusters, default_clusters=2):
     previous_slope = distortions[0]-distortions[1]
     for i in range(2,len(num_clusters)):
         slope = distortions[i-1]-distortions[i]
-        slope_variation = (previous_slope-slope)
+        slope_variation = (previous_slope-slope)/slope
         previous_slope = slope
         slope_variations.append(slope_variation)
     
@@ -142,7 +142,7 @@ def compute_score(clusters,cluster_num,tweet_id_to_cluster,good_num_clust):
                 else:
                     FP += 1
             if(i<good_num_clust):
-                FN += tweet_id_to_cluster["num_elements_clust"+str(i+1)] - TP_clust
+                FN += tweet_id_to_cluster["num_elements_clust"+str(i)] - TP_clust
                                  
             TP += TP_clust
         P = TP/(TP+FP)
@@ -277,7 +277,7 @@ for j in range(cluster_num):
      
 print "Number good elements clusters"
 for clust in range(good_num_clust):
-    print tweet_id_to_cluster["num_elements_clust"+str(clust+1)]
+    print tweet_id_to_cluster["num_elements_clust"+str(clust)]
 
 
 

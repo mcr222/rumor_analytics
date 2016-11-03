@@ -24,6 +24,9 @@ st = LancasterStemmer()
 stop = set(stopwords.words('english'))
 stop.add(';;')
 stop.add(';')
+#rt appears too much and it is not relevant (retweet)
+stop.add('rt')
+
 stop_has = set(stopwords.words('english'))
 stop_has.add('#([a-zA-Z0-9]|[_])*')
 
