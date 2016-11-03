@@ -5,7 +5,7 @@ from TwitterSearch import * #pip install TwitterSearch
 import json
 #import spam_text_detection
 
-# from SentimentAnalysis import SentimentAnalysis
+from SentimentAnalysis import SentimentAnalysis
 # import userRumorSpreader
 
 
@@ -85,14 +85,14 @@ def crawl(keywordstr, first = True, diction=None, tweet_id_to_text=None, tweet_i
 # 			print "Spam score"
 # 			print spam_score
 			
-# 			sentimentAnalysis = SentimentAnalysis()
-# 			result = sentimentAnalysis.Main_performSentimentAnalysis(status)
-# 			print 'tweet: ' + result[0] # tweet text
-# 			print 'sentiment label: ' + result[1] # sentiment label
-# 			print 'pos score: ' + result[2] # positive score
-# 			print 'neg score: ' + result[3] # negative score
-# 			print 'neu score: '+ result[4] # neutral score
-# 			print 'Done'
+			sentimentAnalysis = SentimentAnalysis()
+			result = sentimentAnalysis.Main_performSentimentAnalysis(status)
+			print 'tweet: ' + result[0] # tweet text
+			print 'sentiment label: ' + result[1] # sentiment label
+			print 'pos score: ' + result[2] # positive score
+			print 'neg score: ' + result[3] # negative score
+			print 'neu score: '+ result[4] # neutral score
+			print 'Done'
 # 			user_rumor_score = userRumorSpreader.userMetaCrawl(api, uID)
 # 			print "User rumor score"
 # 			print user_rumor_score
@@ -168,7 +168,7 @@ def crawl(keywordstr, first = True, diction=None, tweet_id_to_text=None, tweet_i
 	
 	return diction, tweet_id_to_text, tweet_id_to_cluster, tf
 
-# crawl('final exam')
+crawl('final exam')
 
 #----use this if you want to crawl from your own timeline----
 #get 20 tweets in my timeline
