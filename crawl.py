@@ -3,10 +3,11 @@
 import tweepy,FilterStem #pip install tweepy
 from TwitterSearch import * #pip install TwitterSearch 
 import json
-#import spam_text_detection
 
+import spam_text_detection
 from SentimentAnalysis import SentimentAnalysis
-# import userRumorSpreader
+import userRumorSpreader
+import randomForestRumor
 
 
 consumer_key='yy2MNJhZohRNuLwmAGEpbxg29'
@@ -80,22 +81,40 @@ def crawl(keywordstr, first = True, diction=None, tweet_id_to_text=None, tweet_i
 			hashtag_list_str = ''
 			mentions = tweet['entities']['user_mentions']
 			mentions_str=''
+			
+			'''
+			Spam detection
+			'''
 # 			print status
 # 			spam_score = spam_text_detection.spam_tweet_prob(status)
 # 			print "Spam score"
 # 			print spam_score
 			
-			sentimentAnalysis = SentimentAnalysis()
-			result = sentimentAnalysis.Main_performSentimentAnalysis(status)
-			print 'tweet: ' + result[0] # tweet text
-			print 'sentiment label: ' + result[1] # sentiment label
-			print 'pos score: ' + result[2] # positive score
-			print 'neg score: ' + result[3] # negative score
-			print 'neu score: '+ result[4] # neutral score
-			print 'Done'
+			'''
+			Sentiment analysis
+			'''
+# 			sentimentAnalysis = SentimentAnalysis()
+# 			_,_,positive_score,negative_score,neutral_score = sentimentAnalysis.Main_performSentimentAnalysis(status)
+# 			print 'tweet: ' + result[0] # tweet text
+# 			print 'sentiment label: ' + result[1] # sentiment label
+# 			print 'pos score: ' + result[2] # positive score
+# 			print 'neg score: ' + result[3] # negative score
+# 			print 'neu score: '+ result[4] # neutral score
+# 			print 'Done'
+
+			'''
+			User rumor score
+			'''
 # 			user_rumor_score = userRumorSpreader.userMetaCrawl(api, uID)
 # 			print "User rumor score"
 # 			print user_rumor_score
+
+			'''
+			Tweet rumor score
+			'''
+# 			tweet_rumor_score = randomForestRumor.tweetRumorclassification(tweet_id, retweets>0, in_reply_to_status_id!=None, retweets, status)
+# 			print "Tweet rumor score"
+# 			print tweet_rumor_score
 
 		
 			#print to console

@@ -93,15 +93,15 @@ def tweetRumorclassification(tweetid, hasBeenRT, isReply, retweet_count, tweet_t
         #print tweetinfo
     hasbeenrt='YES'
     isreply='YES'
-    if hasBeenRT=='False':
+    if hasBeenRT==False:
         hasbeenrt='NO'
-    if isReply=='False':
+    if isReply==False:
         isreply='NO'
     x=[tweetinfo[0]]+[hasbeenrt, isreply,retweet_count] 
     #print x   
     unlabeled=x+tweetinfo[1:]
-    print "Is this a RT?;Has it been RT?;is it a reply?;#ofRT;#ofWords;#ofChars;#ofwhiteSpaces;#ofHastags;#ofAts;#ofLower;#ofUpper"
-    print unlabeled
+#     print "Is this a RT?;Has it been RT?;is it a reply?;#ofRT;#ofWords;#ofChars;#ofwhiteSpaces;#ofHastags;#ofAts;#ofLower;#ofUpper"
+#     print unlabeled
     allAttributes[0].append(unlabeled)
     #print allAttributes[0]
     attributes=makeNumericMatrix(allAttributes[0])
@@ -119,7 +119,7 @@ def tweetRumorclassification(tweetid, hasBeenRT, isReply, retweet_count, tweet_t
     #print(X_random)
     #print "...with a score of:"
     #print(X_prob)
-    print "This tweet rumor score is:"
+#     print "This tweet rumor score is:"
     return X_prob[0][1]        
 #Is this a RT?;Has it been RT?;is it  a reply?;#ofRT;#ofWords;#ofChars;#ofwhiteSpaces;#ofHastags;#ofAts;#ofLower;#ofUpper;LABEL
 #727449104796668000,NO;NO;YES;0;18;127;17;2;2;86;11;NR

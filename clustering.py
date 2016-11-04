@@ -1,22 +1,15 @@
 from __future__ import division
-from scipy.cluster.vq import kmeans,whiten, vq, kmeans2
+from scipy.cluster.vq import kmeans,whiten, vq
 import csv
 import numpy as np
-import matplotlib.pyplot as plt
 from scipy.cluster.hierarchy import fclusterdata
 import crawl
 from scipy.spatial.distance import cosine, pdist, squareform
-import got
 from nltk.metrics.distance import jaccard_distance
 from sklearn.cluster import AffinityPropagation
 import matplotlib.pyplot as plt
 import itertools
 import FilterStem
-
-# tweetCriteria = got.manager.TweetCriteria().setQuerySearch('europe refugees').setSince("2015-05-01").setUntil("2015-09-30").setMaxTweets(1)
-# tweet = got.manager.TweetManager.getTweets(tweetCriteria)[0]
-#     
-# print(tweet.text)
 
 '''
 Tweet similarity

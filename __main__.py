@@ -2,6 +2,22 @@ from crawl import crawl, save_dictionary
 from indexing import buildIndex
 import rule_mining
 import matplotlib.pyplot as plt
+import Labels
+
+def get_topic_from_words(tf):
+	top_bag_words = []
+	max_top_words = 10
+	i = 0
+	for key, value in sorted(tf.iteritems(), key=lambda (k,v): (v,k), reverse = True):
+		if(i<max_top_words):
+			top_bag_words.append(key)
+			i+=1
+		else:
+			break
+		
+	print top_bag_words
+	topic_label = Labels.SearchLabel(top_bag_words)
+	return topic_label
 
 if __name__ == "__main__":
 	keyword = raw_input("Please enter search term: ")
@@ -10,8 +26,10 @@ if __name__ == "__main__":
 	diction, tweet_id_to_text, tweet_id_to_cluster,docID, tf = crawl(keyword)
 	print len(tweet_id_to_cluster)
 	
-	keywords = rule_mining.find_coocurrences(keyword, tf,len(tweet_id_to_text),tweet_id_to_text)
+	print "Search topic: " + str(get_topic_from_words(tf))
 	
+	keywords = rule_mining.find_coocurrences(keyword, tf,len(tweet_id_to_text),tweet_id_to_text)
+
 	print keywords
 
 # 	keywords = ["politician","exam","music", "basket"]
@@ -33,7 +51,4 @@ if __name__ == "__main__":
 	save_dictionary("tweet_text_dictionary.json", tweet_id_to_text)
 	save_dictionary("tweet_cluster_dictionary.json", tweet_id_to_cluster)
 	buildIndex(diction)
-'''
-output= ["trump","clinton", "obama"]
-salida= Labels.SearchLabel(output)
-print salida '''
+
