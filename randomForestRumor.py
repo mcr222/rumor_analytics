@@ -3,6 +3,11 @@ from sklearn import preprocessing
 from numpy import asarray
 import csv
 from collections import Counter
+import warnings
+warnings.filterwarnings('ignore')
+
+clf = None
+encoders = None
 
 def n_lower_chars(string):
     return sum(1 for c in string if c.islower())
@@ -26,13 +31,25 @@ def openFile():
 transformMatrixToNum: Given a matrix converts to numeric the attribute values. 
 Assigning the same number for the same attribute values
 """
+
+def transformArrayToNum(x):
+    global encoders
+    encoded_x = []
+    i=0
+    for el in x:
+        encoded_x.append(encoders[i].transform([el])[0]) 
+        i+=1
+    return encoded_x
+        
 def transformMatrixToNum(X):
+    global encoders
     x_array=asarray(X)
     x_trans=[]
-    encoders=[]
-    for cols in range(0, len(X[0])):
-        encoders.append(preprocessing.LabelEncoder())        
-        encoders[cols].fit_transform(x_array[:,cols])
+    if encoders==None:
+        encoders=[]
+        for cols in range(0, len(X[0])):
+            encoders.append(preprocessing.LabelEncoder())
+            encoders[cols].fit_transform(x_array[:,cols])     
     for i in range(0, len(X)):
         list1=[]
         for j in range(0, len(X[0])):
@@ -40,15 +57,16 @@ def transformMatrixToNum(X):
             a=encoders[j].transform(f)
             list1.append(a[0])
         x_trans.append(list1)
+        
     return x_trans
 
 def makeNumericMatrix(X):
-    columns1to5 = [row[0:3] for row in X]
+    nominalColumns = [row[0:3] for row in X]
     #print columns1to6
-    numericCols1=transformMatrixToNum(columns1to5)
-    columns6to12= [row[3:11] for row in X]
+    numericCols1=transformMatrixToNum(nominalColumns)
+    columns3to11= [row[3:11] for row in X]
     #print columns6to12
-    numericCols2 = [[int(column) for column in row] for row in columns6to12]
+    numericCols2 = [[int(column) for column in row] for row in columns3to11]
     numericMatrix=[]
     #print numericCols1
     i=0
@@ -60,6 +78,7 @@ def makeNumericMatrix(X):
 
 def featureExtractionfromText(text):
         attributes=[]
+        print text
         chars=len(text)
         words=len(text.split())
         whitespaces=Counter(list(text))[' ']
@@ -80,8 +99,8 @@ def featureExtractionfromText(text):
         attributes.append(upper) 
         return attributes             
 
-def tweetRumorclassification(tweetid, hasBeenRT, isReply, retweet_count, tweet_text):  
-    allAttributes= openFile()
+def tweetRumorclassification(hasBeenRT, isReply, retweet_count, tweet_text):
+    global clf
     tweetinfo= featureExtractionfromText(tweet_text)
     hasbeenrt='YES'
     isreply='YES'
@@ -89,33 +108,25 @@ def tweetRumorclassification(tweetid, hasBeenRT, isReply, retweet_count, tweet_t
         hasbeenrt='NO'
     if isReply==False:
         isreply='NO'
-    x=[tweetinfo[0]]+[hasbeenrt, isreply,retweet_count] 
-    unlabeled=x+tweetinfo[1:]
-#     print "Is this a RT?;Has it been RT?;is it a reply?;#ofRT;#ofWords;#ofChars;#ofwhiteSpaces;#ofHastags;#ofAts;#ofLower;#ofUpper"
-#     print unlabeled
-    allAttributes[0].append(unlabeled)
-    #print allAttributes[0]
+    x_text=[tweetinfo[0]]+[hasbeenrt, isreply]
+    x_numeric = [retweet_count]+tweetinfo[1:]
+    x_to_classify=transformArrayToNum(x_text)+x_numeric
+    X_prob=clf.predict_proba(x_to_classify)
+    return X_prob[0][1]
+
+def create_random_forest():
+    global clf
+    allAttributes= openFile()
     attributes=makeNumericMatrix(allAttributes[0])
-    xNum=attributes[-1:]
-    #print attributes
-    del attributes[-1:]
     clf = RandomForestClassifier(n_estimators=100)
     Y=allAttributes[1]
-    clf.fit(attributes,Y)
-    #X_Score=  clf.score(attributes, Y)
-    #X_random = clf.predict(xNum)
-    X_prob=clf.predict_proba(xNum)
-    # x_path=clf.decision_path(xNum)
-    #print "This tweet is classified as:"   
-    #print(X_random)
-    #print "...with a score of:"
-    #print(X_prob)
-    #print "This tweet rumor score is:"
-    return X_prob[0][1]        
+    clf.fit(attributes,Y)      
+create_random_forest()
+
 #Is this a RT?;Has it been RT?;is it  a reply?;#ofRT;#ofWords;#ofChars;#ofwhiteSpaces;#ofHastags;#ofAts;#ofLower;#ofUpper;LABEL
 #727449104796668000,NO;NO;YES;0;18;127;17;2;2;86;11;NR
 #727444506199597000,YES;NO;NO;0;10;94;9;1;1;61;11;R
 #727448901754716000,YES;NO;NO;0;16;142;15;3;1;91;18;NR
-#print tweetRumorclassification(727449104796668000,'False','True',0,'What is #ZikaVirus, how you catch it and how to avoid it too! via @DrMelOB @wanderlustmag https://t.co/W5THhv2Pgh #publichealth')
-#print tweetRumorclassification(727444506199597000,'True','False','False',0,'RT @ClassicPict: Mosquitoes kill more annually than Sharks. #ZikaVirus https://t.co/P2xi13Vx2Z')
-#print tweetRumorclassification(727448901754716000,'True','False','False',0,'RT @Acedotor: Combating #ZikaVirus through Education: New Tuition-Free Health Studies Degree Launched : https://t.co/SWjHc3noP5 #health #pa')
+# print tweetRumorclassification(727449104796668000,'False','True',0,'What is #ZikaVirus, how you catch it and how to avoid it too! via @DrMelOB @wanderlustmag https://t.co/W5THhv2Pgh #publichealth')
+# print tweetRumorclassification(727444506199597000,'False','False',0,'RT @ClassicPict: Mosquitoes kill more annually than Sharks. #ZikaVirus https://t.co/P2xi13Vx2Z')
+# print tweetRumorclassification(727448901754716000,'True','False',0,'RT @Acedotor: Combating #ZikaVirus through Education: New Tuition-Free Health Studies Degree Launched : https://t.co/SWjHc3noP5 #health #pa')
