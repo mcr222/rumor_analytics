@@ -29,7 +29,7 @@ def read_dictionary(name):
 
 #input: none
 #output: dictionary of: filtered word -> (docID,freq)
-def crawl(keywordstr, first = True, diction=None, tweet_id_to_text=None, tweet_id_to_cluster=None,cluster=0, docID=1):
+def crawl(keywordstr, first = True, diction=None, tweet_id_to_text=None, tweet_id_to_search=None,cluster=0, docID=1):
 	
 	if(diction==None):
 		diction ={}
@@ -37,27 +37,22 @@ def crawl(keywordstr, first = True, diction=None, tweet_id_to_text=None, tweet_i
 	tf = {}
 	
 	if(first):
-		file_out = open('metadata.txt', 'w')
-		file_raw_tweet = open('tweets.csv', 'w')
-		file_out.write('docID;username;userID;uLocation;tweetID;numberOfRetweet;numberOfFavorites;inReplytoStatusID;isHashtagAvailable;mentions;spam' + '\n')
-		file_raw_tweet .write('docID;tweetID;tweetText;Hashtags;Mentions' + '\n')
+		file_out_metadata = open('metadata.txt', 'w')
+		file_out_metadata.write('tweetID;numberOfRetweet;numberOfFavorites;spam_score;positive_score;negative_score;neutral_score;user_credibility;tweet_rumor_score' + '\n')
 		
 	else:
-		file_out = open('metadata.txt', 'a')
-		file_raw_tweet = open('tweets.csv', 'a')
+		file_out_metadata = open('metadata.txt', 'a')
 		
 	#Store the tweet text in a map so it can be easily retrieved (for clustering evaluation)
 	if(tweet_id_to_text==None):	
 		tweet_id_to_text = {}
 		
-	if(tweet_id_to_cluster==None):
-		tweet_id_to_cluster = {}
+	if(tweet_id_to_search==None):
+		tweet_id_to_search = {}
 		
 	#search tweet
 	try:
 		tso = TwitterSearchOrder()
-		#keyw=raw_input('Input search term:')
-		#tso.set_keywords([keyw]) #insert search keyword here
 		tso.set_keywords([keywordstr])
 		tso.set_language('en')
 
@@ -69,104 +64,54 @@ def crawl(keywordstr, first = True, diction=None, tweet_id_to_text=None, tweet_i
 		        )
 
 		for tweet in ts.search_tweets_iterable(tso):
-			username = tweet['user']['screen_name']
 			uID = tweet['user']['id']
-			uLocation = tweet['user']['location'].encode('ascii','ignore')
 			status = tweet['text'].replace('\n', ' ').encode('ascii','ignore')
+			# 			print status
 			retweets = tweet['retweet_count']
-			hashtag_list = tweet['entities']['hashtags']
+			
 			tweet_id = tweet['id_str']
 			favorite_count = tweet['favorite_count']
 			in_reply_to_status_id = tweet['in_reply_to_status_id_str']
-			hashtag_list_str = ''
-			mentions = tweet['entities']['user_mentions']
-			mentions_str=''
+			
 			
 			'''
 			Spam detection
 			'''
-# 			print status
-# 			spam_score = spam_text_detection.spam_tweet_prob(status)
-# 			print "Spam score"
-# 			print spam_score
+			spam_score = spam_text_detection.spam_tweet_prob(status)
+# 			print "Spam score" + str(spam_score)
 			
 			'''
 			Sentiment analysis
 			'''
-# 			sentimentAnalysis = SentimentAnalysis()
-# 			_,_,positive_score,negative_score,neutral_score = sentimentAnalysis.Main_performSentimentAnalysis(status)
-# 			print 'tweet: ' + result[0] # tweet text
+			sentimentAnalysis = SentimentAnalysis()
+			_,_,positive_score,negative_score,neutral_score = sentimentAnalysis.Main_performSentimentAnalysis(status)
 # 			print 'sentiment label: ' + result[1] # sentiment label
-# 			print 'pos score: ' + result[2] # positive score
-# 			print 'neg score: ' + result[3] # negative score
-# 			print 'neu score: '+ result[4] # neutral score
-# 			print 'Done'
 
 			'''
 			User rumor score
 			'''
-# 			user_rumor_score = userRumorSpreader.userMetaCrawl(api, uID)
-# 			print "User rumor score"
-# 			print user_rumor_score
+			user_rumor_score = userRumorSpreader.userMetaCrawl(api, uID)
+# 			print "User rumor score" + str(user_rumor_score)
 
 			'''
 			Tweet rumor score
 			'''
-# 			tweet_rumor_score = randomForestRumor.tweetRumorclassification(tweet_id, retweets>0, in_reply_to_status_id!=None, retweets, status)
-# 			print "Tweet rumor score"
-# 			print tweet_rumor_score
+			tweet_rumor_score = randomForestRumor.tweetRumorclassification(tweet_id, retweets>0, in_reply_to_status_id!=None, retweets, status)
+# 			print "Tweet rumor score"  + str(tweet_rumor_score)
 
-		
-			#print to console
-# 			print('@' + username)
-# 			print('id: ' + str(uID))
-			if uLocation=='':
-				uLocation = 'None'
-			else:
-				uLocation
-# 				print('user location: ' + uLocation)
-# 			print(status)
-# 			print('retweeted ' + str(retweets) + ' times')
-# 			print('hashtag: ')
-			if len(hashtag_list)>0:
-				isHashtagAvailable = 1
-				for i in hashtag_list:
-# 					print(i['text'].encode('ascii','ignore'))
-					hashtag_list_str = hashtag_list_str + '#' + i['text'].encode('ascii','ignore')
-			else:
-				isHashtagAvailable = 0
-# 			print(hashtag_list_str)
-# 			print('favcount: ' + str(favorite_count))
-			if in_reply_to_status_id is None:
-				in_reply_to_status_id = 'None'
-			else:
-				None
-# 			print('in reply to status id: ' + in_reply_to_status_id)
-			if len(mentions)>0:
-				isMentionAvailable=1
-				for j in mentions:
-					mentions_str = mentions_str + '@' + j['screen_name']
-# 				print('mentions: ' + mentions_str)
-			else:
-				isMentionAvailable=0
-# 				print('mentions: None')
-# 			print('\n')
+
 			#write metadata to external file
-			file_out.write(str(docID) + ';' + username + ';' + str(uID) + ';' + uLocation + ';' + tweet_id + ';' + str(retweets) + ';' + str(favorite_count) + ';' 
-						+ in_reply_to_status_id + ';' + str(isHashtagAvailable) + ';' + hashtag_list_str + ';' + mentions_str 
-						+ '\n')
+			file_out_metadata.write(tweet_id + ';' + str(retweets) + ';' + str(favorite_count) + ';' 
+						+ spam_score + ';' + positive_score + ';' + negative_score + ';' + neutral_score + ';' + user_rumor_score
+						+ ';' + tweet_rumor_score + '\n')
 			
-			#write tweets to external file
-			file_raw_tweet.write(str(docID) + ';' + tweet_id + ';' + status + ';' + hashtag_list_str + ';' + mentions_str + '\n')
-
 			tweet_id_to_text[tweet_id] = status
-			tweet_id_to_cluster[tweet_id] = cluster
+			tweet_id_to_search[tweet_id] = cluster
 			
 			docID = docID + 1
 
 			#indexing
 			
-
 			#tweetToken=status.split(" ")
 			tweetToken=FilterStem.f_line_filter(status)
 			for term in tweetToken:
@@ -184,20 +129,7 @@ def crawl(keywordstr, first = True, diction=None, tweet_id_to_text=None, tweet_i
 	except TwitterSearchException as e: #catch errors
 		print(e)
 
-	file_out.close()
-	file_raw_tweet.close()
+	file_out_metadata.close()
 	
-	return diction, tweet_id_to_text, tweet_id_to_cluster,docID ,tf
-
-crawl('final exam')
-
-#----use this if you want to crawl from your own timeline----
-#get 20 tweets in my timeline
-#public_tweets = api.home_timeline()
-#file_out = open('output.txt', 'w')
-#for tweet in public_tweets:
-	#file_out.write(tweet.text.encode('ascii','ignore') + '\n')
-	#print tweet.text.encode('ascii','ignore') + '\n'
-
-
+	return diction, tweet_id_to_text, tweet_id_to_search,docID ,tf
 

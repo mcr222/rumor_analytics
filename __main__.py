@@ -23,14 +23,16 @@ if __name__ == "__main__":
 	keyword = raw_input("Please enter search term: ")
 
 	docID=1
-	diction, tweet_id_to_text, tweet_id_to_cluster,docID, tf = crawl(keyword)
-	print len(tweet_id_to_cluster)
+	diction, tweet_id_to_text, tweet_id_to_search,docID, tf = crawl(keyword)
+	print len(tweet_id_to_search)
 	
 	print "Search topic: " + str(get_topic_from_words(tf))
 	
 	keywords = rule_mining.find_coocurrences(keyword, tf,len(tweet_id_to_text),tweet_id_to_text)
 
 	print keywords
+	
+	raw_input("Press enter to continue")
 
 # 	keywords = ["politician","exam","music", "basket"]
 # 	print keywords
@@ -38,17 +40,17 @@ if __name__ == "__main__":
 	cluster = 1
 	
 	for keyword in keywords:
-		diction, tweet_id_to_text, tweet_id_to_cluster,docID, tf = crawl(keyword,False,diction, tweet_id_to_text,tweet_id_to_cluster,cluster,docID)
-		tweet_id_to_cluster["num_elements_clust"+str(cluster)] = len(tweet_id_to_cluster)-accumulated_tweets
-		accumulated_tweets += tweet_id_to_cluster["num_elements_clust"+str(cluster)]
+		diction, tweet_id_to_text, tweet_id_to_search,docID, tf = crawl(keyword,False,diction, tweet_id_to_text,tweet_id_to_search,cluster,docID)
+		tweet_id_to_search["num_elements_clust"+str(cluster)] = len(tweet_id_to_search)-accumulated_tweets
+		print "Tweets for search: " + keyword
+		print len(tweet_id_to_search)-accumulated_tweets
+		accumulated_tweets += tweet_id_to_search["num_elements_clust"+str(cluster)]
 		cluster+=1
-		print len(diction)
-		print len(tweet_id_to_text)
-		plt.plot(range(5))
-		plt.show()
+		raw_input("Press enter to continue")
+
 		
-	tweet_id_to_cluster["num_clusters"] = len(keywords)
+	tweet_id_to_search["num_clusters"] = len(keywords)
 	save_dictionary("tweet_text_dictionary.json", tweet_id_to_text)
-	save_dictionary("tweet_cluster_dictionary.json", tweet_id_to_cluster)
+	save_dictionary("tweet_search_dictionary.json", tweet_id_to_search)
 	buildIndex(diction)
 
