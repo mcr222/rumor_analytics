@@ -6,22 +6,37 @@ import FilterStem
 import random
 from TwitterSearch import * #pip install TwitterSearch 
 import json
+import pickle
+
 
 error_count=0
 classifier_tweet={}
 classifier_sms={}
-#random string as initial feed to get unlabeled tweets for co-training
-random_string="hello world"
 
 
-
-def save_dictionary(name, save_dictionary):
-	f = open(name,"w")
-	json.dump(save_dictionary,f)
-	
 def read_dictionary(name):
 	f = open(name,"r")
 	return json.load(f)
+
+def save_classifier():
+    f=open('spam_sms_classifier.pickle','wb')
+    g=open('spam_tweet_classifier.pickle','wb')
+    global classifier_tweet
+    global classifier_sms
+    pickle.dump(classifier_sms,f)
+    pickle.dump(classifier_tweet,g)
+    f.close()
+    g.close()
+
+def load_classifier():
+    f=open('spam_sms_classifier.pickle','rb')
+    g=open('spam_tweet_classifier.pickle','rb')
+    global classifier_tweet
+    global classifier_sms
+    classifier_sms=pickle.load(f)
+    classifier_tweet=pickle.load(g)
+    f.close()    
+    g.close()
 
 
 def get_features(text):
@@ -33,37 +48,15 @@ def get_features(text):
     except:
         error_count += 1
 
-def get_random_tweets():
-    #still using dummy:
-    global random_string
-    #consumer_key='yy2MNJhZohRNuLwmAGEpbxg29'
-    #consumer_secret='YWplgn58vd5OAtJehKRQgCYe9Oi20YI01RwBFgkkGG2rSlv8Gi'
-    #access_token='777483763597074432-ftrzRrPw2vBNyiADa02dAlcinNnYXSL'
-    #access_token_secret='EELcpttFpHX74eTRx9GsKOYJmZqWJNWk6pgnSqvrTGp1Q'
-    # try:    
-    #     tso = TwitterSearchOrder()
-    #     tso.set_keywords([random.choice(random_string.split())])
-    #     tso.set_language('en')
-    #     tso.set_count(10)
-    #     ts = TwitterSearch(
-    #                 consumer_key = consumer_key,
-    #                 consumer_secret = consumer_secret,
-    #                 access_token = access_token,
-    #                 access_token_secret = access_token_secret
-    #             )
+def get_random_tweet():
     statuses=[]
     try:
-     	statuses=read_dictionary("unlabeled_tweets")
-    except:
+        diction=read_dictionary("tweet_text_dictionary.json")
+        for key,value in diction.iteritems():
+            statuses.append(str(value))
+    except Exception as e:
         statuses=[]
-    #     for tweet in ts.search_tweets_iterable(tso):
-    #         tweete=tweet['text'].replace('\n', ' ').encode('ascii','ignore')
-    #         statuses.append(tweete)
-    #         random_string=tweete
-    # except TwitterSearchException as e: #catch errors
-    #     print("Error!")
-    save_dictionary("unlabeled_tweets",statuses)
-    return statuses
+    return statuses 
         
 
 #Input: tweet (string)
@@ -125,8 +118,6 @@ def build_spam_classifier():
             #sms_data.append((feature, "ham"))
         else:
             error_count += 1            
-    #print error_count
-    #print len(sms_data)
     random.shuffle(sms_data)
     random.shuffle(tweet_data)
     training_set = sms_data[:int(len(sms_data)*0.8)]
@@ -139,26 +130,23 @@ def build_spam_classifier():
     classifier_tweet = NaiveBayesClassifier.train(training_set_tweet)
     try:
         extra_data=[]
-        for i in xrange(1,30):
-	    	counter=0
-	        random_tweets=get_random_tweets()
-	        for tweet in random_tweets:
-	            sms_spam_prob=spam_sms_prob(tweet)
-	            tweet_spam_prob=spam_tweet_prob(tweet)
-	            feature = get_features(tweet)
-	            if(sms_spam_prob>0.90 and tweet_spam_prob>0.90):
-	                if feature is not None and (feature,"spam") not in extra_data:
-	                    extra_data.append((feature,"spam"))
-	                    counter=counter+1
-	            if(sms_spam_prob<0.10 and tweet_spam_prob<0.10 and (feature,"ham") not in extra_data and counter>0):
-	                if feature is not None:
-	                    extra_data.append((feature,"ham"))
-	                    counter=counter-1
-	            	#classifier_sms = NaiveBayesClassifier.train(training_set)
-	            	#classifier_tweet = NaiveBayesClassifier.train(training_set_tweet)	    		
+        random_tweet=get_random_tweet()
+        for tweet in random_tweet:
+            sms_spam_prob=spam_sms_prob(tweet)
+            tweet_spam_prob=spam_tweet_prob(tweet)
+            feature = get_features(tweet)
+            if(sms_spam_prob>0.90 and tweet_spam_prob>0.90):
+                if feature is not None:
+                    extra_data.append((feature,"spam"))
+                    counter=counter+1
+            if(sms_spam_prob<0.10 and tweet_spam_prob<0.10 and counter>0):
+                if feature is not None:
+                    extra_data.append((feature,"ham"))
+                    counter=counter-1
+            #classifier_sms = NaiveBayesClassifier.train(training_set)
+            #classifier_tweet = NaiveBayesClassifier.train(training_set_tweet)                
     except TwitterSearchException as e: #catch errors
-	    print("")
-    training_set.extend(extra_data)
+        print e
     training_set_tweet.extend(extra_data)
     classifier_tweet = NaiveBayesClassifier.train(training_set_tweet)
     #print classify.util.accuracy(classifier_sms,test_set)
@@ -166,11 +154,8 @@ def build_spam_classifier():
     #print classify.util.accuracy(classifier_tweet,test_set)
     #print classify.util.accuracy(classifier_tweet,tweet_data)
         ###print classifier_sms.show_most_informative_features(20)
-	    #print classifier_tweet.show_most_informative_features(20)
-    
-
-                     
-#print sms_data[0:3]
+        #print classifier_tweet.show_most_informative_features(20)
+    save_classifier()
 
 
 
@@ -179,13 +164,15 @@ def build_spam_classifier():
 #Output: "spam" or "ham" (string)
 def spam_classify(tweet):
     return classifier_tweet.classify(get_features(tweet))
-#return (classifier_sms.classify(get_features(tweet)),classifier_tweet.classify(get_features(tweet)))
     
 def show_most_informative_features(number):
     return classifier_tweet.show_most_informative_features(number)
 
-#if __name__ == "__main__":
-build_spam_classifier()
+try:
+    load_classifier()
+except:
+    build_spam_classifier()
+#build_spam_classifier()
 #    a=spam_classify("Subject: customer list   - - - - - - - - - - - - - - - - - - - - - - forwarded by gary w lamphier / hou / ect on 01 / 28 / 2000  04 : 57 pm - - - - - - - - - - - - - - - - - - - - - - - - - - -    from : lee l papayoti on 01 / 19 / 2000 05 : 30 pm  to : james a ajello / hou / ect @ ect , wendy king / corp / enron @ enron , jim crump / corp / enron @ enron , andrew wilson / corp / enron @ enron , glenn wright / corp / enron @ enron   cc : gary w lamphier / hou / ect @ ect , james mackey / hou / ect @ ect subject : ")
 #    print(a)
 #    a=spam_classify("If your in pain call Oriental Therapies at 624-158-1072 Office San Jose del cabo in front of Mcdonlads")
