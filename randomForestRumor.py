@@ -3,17 +3,6 @@ from sklearn import preprocessing
 from numpy import asarray
 import csv
 from collections import Counter
-# import tweepy
-
-# def establishConnection():
-#     global api
-#     consumer_key='yy2MNJhZohRNuLwmAGEpbxg29'
-#     consumer_secret='YWplgn58vd5OAtJehKRQgCYe9Oi20YI01RwBFgkkGG2rSlv8Gi'
-#     access_token='777483763597074432-ftrzRrPw2vBNyiADa02dAlcinNnYXSL'
-#     access_token_secret='EELcpttFpHX74eTRx9GsKOYJmZqWJNWk6pgnSqvrTGp1Q'
-#     auth = tweepy.OAuthHandler(consumer_key, consumer_secret)
-#     auth.set_access_token(access_token, access_token_secret)
-#     api = tweepy.API(auth)
 
 def n_lower_chars(string):
     return sum(1 for c in string if c.islower())
@@ -33,6 +22,10 @@ def openFile():
             Y.append(row[-1])
     return instances, Y
 
+"""
+transformMatrixToNum: Given a matrix converts to numeric the attribute values. 
+Assigning the same number for the same attribute values
+"""
 def transformMatrixToNum(X):
     x_array=asarray(X)
     x_trans=[]
@@ -65,7 +58,7 @@ def makeNumericMatrix(X):
             numericMatrix.append(newRow)
     return numericMatrix
 
-def featureExtractionfromID(text):
+def featureExtractionfromText(text):
         attributes=[]
         chars=len(text)
         words=len(text.split())
@@ -89,8 +82,7 @@ def featureExtractionfromID(text):
 
 def tweetRumorclassification(tweetid, hasBeenRT, isReply, retweet_count, tweet_text):  
     allAttributes= openFile()
-    tweetinfo= featureExtractionfromID(tweet_text)
-        #print tweetinfo
+    tweetinfo= featureExtractionfromText(tweet_text)
     hasbeenrt='YES'
     isreply='YES'
     if hasBeenRT==False:
@@ -98,7 +90,6 @@ def tweetRumorclassification(tweetid, hasBeenRT, isReply, retweet_count, tweet_t
     if isReply==False:
         isreply='NO'
     x=[tweetinfo[0]]+[hasbeenrt, isreply,retweet_count] 
-    #print x   
     unlabeled=x+tweetinfo[1:]
 #     print "Is this a RT?;Has it been RT?;is it a reply?;#ofRT;#ofWords;#ofChars;#ofwhiteSpaces;#ofHastags;#ofAts;#ofLower;#ofUpper"
 #     print unlabeled
@@ -119,7 +110,7 @@ def tweetRumorclassification(tweetid, hasBeenRT, isReply, retweet_count, tweet_t
     #print(X_random)
     #print "...with a score of:"
     #print(X_prob)
-#     print "This tweet rumor score is:"
+    #print "This tweet rumor score is:"
     return X_prob[0][1]        
 #Is this a RT?;Has it been RT?;is it  a reply?;#ofRT;#ofWords;#ofChars;#ofwhiteSpaces;#ofHastags;#ofAts;#ofLower;#ofUpper;LABEL
 #727449104796668000,NO;NO;YES;0;18;127;17;2;2;86;11;NR
