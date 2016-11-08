@@ -15,7 +15,7 @@ import FilterStem
 
 
 wikipedia.set_lang("en")
- # here it is defined a list of main searchs that retunrs the most accurate and actual information about the football scenario. 
+ # here it is defined a list of main searchs that returns the most accurate and actual information about the football scenario. 
  # as we are doing this project over twitter, we need actual information about the topics.
  
 ftbll = wikipedia.page("List of Real Madrid C.F. players")
@@ -36,14 +36,9 @@ def cleanhtml(raw_html):
 def CrawlFootball():  #function that makes the searchs
     items_to_clean =  cleanhtml(ftbll.html()) 
     line_filtered = FilterStem.f_line_filter_hashment(items_to_clean)
-    #print line_filtered
     mergedlist = line_filtered + FilterStem.f_line_filter_hashment(cleanhtml(ftbll2.html())) #filter the page obtained
     mergedlist = mergedlist + FilterStem.f_line_filter_hashment(cleanhtml(ftbll3.html()))
     mergedlist = mergedlist + FilterStem.f_line_filter_hashment(cleanhtml(ftbll4.html()))
     mergedlist = mergedlist + FilterStem.f_line_filter_hashment(cleanhtml(ftbll5.html()))
     mergedlist = mergedlist + FilterStem.f_line_filter_hashment(cleanhtml(ftbll6.html()))
     return mergedlist
-     
-
-#for item in line_filtered:
-#   file_out.write("%s\n" % item)

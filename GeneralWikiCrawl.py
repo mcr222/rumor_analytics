@@ -10,7 +10,6 @@ as it crawsl the links found in the main wikipedia page of the topic search.
 import wikipedia
 import urllib2
 import re
-import FilterStem
 import string
 import FilterStem
 import WikiCrawlFootball
@@ -21,11 +20,11 @@ import WikiCrawlPolitics
 wikipedia.set_lang("en")
 
 def cleanhtml(raw_html):  # this function erases the htmls tags from the web crawled
-     cleanr = re.compile('<.*?>')
-     cleantext = re.sub(cleanr, '', raw_html)
-     return cleantext
+    cleanr = re.compile('<.*?>')
+    cleantext = re.sub(cleanr, '', raw_html)
+    return cleantext
  
-def GeneralWikiCrawl():  # begining of the function. 
+def GeneralWikiCrawl():  #function that Crawls Wikipedia with a list of topics
     diction ={}
     topics=["technology", "health", "fashion", "nature", "films", "art", "travel", "beauty", "gossip", "basketball", "university" ] # manually selected list of topics 
     foot="football" # defines the optimal-search of topic football
@@ -35,8 +34,8 @@ def GeneralWikiCrawl():  # begining of the function.
         foot_list = WikiCrawlFootball.CrawlFootball() #here it calls the WikiCrawlFootbal function and stores it in foot_ist
         poli_list = WikiCrawlPolitics.CrawlPolitics() # same for politics
         
-        page = wikipedia.WikipediaPage(item).html() #we crawls the wikipedia page getting the whole html out of it. The wikipedia function of getting content did not retunr the infromation inside tables, wich is normally very reliable. 
-        links= wikipedia.WikipediaPage(item).links # will merge with results from link [1] and  link [2] retunr by the function given by the open API of wikipedia : links()   
+        page = wikipedia.WikipediaPage(item).html() #we crawls the wikipedia page getting the whole html out of it. The wikipedia function of getting content did not return the infromation inside tables, wich is normally very reliable. 
+        links= wikipedia.WikipediaPage(item).links # will merge with results from link [1] and  link [2] return by the function given by the open API of wikipedia : links()   
         line_filtered = FilterStem.f_line_filter_hashment(cleanhtml(page)) # clean the html and get the real value out of it. 
         page1 = wikipedia.WikipediaPage(links[1]).html()
         line_filtered = line_filtered + FilterStem.f_line_filter_hashment(cleanhtml(page1)) # clean the text with filterStem()
@@ -74,5 +73,3 @@ def GeneralWikiCrawl():  # begining of the function.
             
     
     return diction
-
-

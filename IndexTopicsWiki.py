@@ -36,8 +36,8 @@ for term in sorted(dictionary):
         for topic in sorted(frequency_map):
             file_out.write(str(topic)+","+str(frequency_map[topic]))
             if iterator==leng-1:
-                 file_out.write("\n")                
+                file_out.write("\n")                
             else:
-                 file_out.write(";")
+                file_out.write(";")
             iterator=iterator+1
 file_out.close()
