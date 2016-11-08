@@ -27,6 +27,10 @@ def read_dictionary(name):
 	f = open(name,"r")
 	return json.load(f)
 
+def format_num(num):
+	return str("{0:.2f}".format(num))
+
+
 #input: none
 #output: dictionary of: filtered word -> (docID,freq)
 def crawl(keywordstr, first = True, diction=None, tweet_id_to_text=None, tweet_id_to_search=None,cluster=0, docID=1):
@@ -66,7 +70,7 @@ def crawl(keywordstr, first = True, diction=None, tweet_id_to_text=None, tweet_i
 		for tweet in ts.search_tweets_iterable(tso):
 			uID = tweet['user']['id']
 			status = tweet['text'].replace('\n', ' ').encode('ascii','ignore')
-			# 			print status
+# 			print status
 			retweets = tweet['retweet_count']
 			
 			tweet_id = tweet['id_str']
@@ -78,38 +82,41 @@ def crawl(keywordstr, first = True, diction=None, tweet_id_to_text=None, tweet_i
 			Spam detection
 			'''
 			spam_score = spam_text_detection.spam_tweet_prob(status)
-# 			print "Spam score" + str(spam_score)
+# 			print "Spam score " + str(spam_score)
 			
 			'''
 			Sentiment analysis
 			'''
 			sentimentAnalysis = SentimentAnalysis()
 			_,_,positive_score,negative_score,neutral_score = sentimentAnalysis.Main_performSentimentAnalysis(status)
-# 			print 'sentiment label: ' + result[1] # sentiment label
+# 			print 'sentiment label: ' + str(label)  # sentiment label
 
 			'''
 			User rumor score
 			'''
 			user_rumor_score = userRumorSpreader.userMetaCrawl(api, uID)
-# 			print "User rumor score" + str(user_rumor_score)
+# 			print "User rumor score " + str(user_rumor_score)
 
 			'''
 			Tweet rumor score
 			'''
-			tweet_rumor_score = randomForestRumor.tweetRumorclassification(tweet_id, retweets>0, in_reply_to_status_id!=None, retweets, status)
-# 			print "Tweet rumor score"  + str(tweet_rumor_score)
+			tweet_rumor_score = randomForestRumor.tweetRumorclassification(retweets>0, in_reply_to_status_id!=None, retweets, status)
+# 			print "Tweet rumor score "  + str(tweet_rumor_score)
 
+			metadata_row = tweet_id + ';' + format_num(retweets) + ';' + format_num(favorite_count) + ';' 
+			metadata_row += format_num(spam_score) + ';' + format_num(positive_score) + ';' + format_num(negative_score) + ';' 
+			metadata_row +=  format_num(neutral_score) + ';' + format_num(user_rumor_score) + ';' + format_num(tweet_rumor_score) + '\n'
 
 			#write metadata to external file
-			file_out_metadata.write(tweet_id + ';' + str(retweets) + ';' + str(favorite_count) + ';' 
-						+ spam_score + ';' + positive_score + ';' + negative_score + ';' + neutral_score + ';' + user_rumor_score
-						+ ';' + tweet_rumor_score + '\n')
+			file_out_metadata.write(metadata_row)
 			
 			tweet_id_to_text[tweet_id] = status
 			tweet_id_to_search[tweet_id] = cluster
 			
 			docID = docID + 1
-
+			
+			if(docID%10==0):
+				print docID
 			#indexing
 			
 			#tweetToken=status.split(" ")

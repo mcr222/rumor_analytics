@@ -78,7 +78,7 @@ def makeNumericMatrix(X):
 
 def featureExtractionfromText(text):
         attributes=[]
-        print text
+        #print text
         chars=len(text)
         words=len(text.split())
         whitespaces=Counter(list(text))[' ']

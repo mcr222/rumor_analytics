@@ -12,7 +12,7 @@ def get_all_tweets(api, screen_name):
     #print "getting tweets " 
     #all subsiquent requests use the max_id param to prevent duplicates
     try:
-        new_tweets = api.user_timeline(screen_name, count=50)
+        new_tweets = api.user_timeline(screen_name, count=10)
     except:
         pass
     #save most recent tweets

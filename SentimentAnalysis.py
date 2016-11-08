@@ -87,9 +87,9 @@ class SentimentAnalysis(object):
         output = []
         sentiment =  self.__classifier.classify(self.extract_features(inputTweet.split()))  
         dist = self.__classifier.prob_classify(self.extract_features(inputTweet.split()))
-        PosScore =  str(dist.prob(self.__positiveLabel))
-        NegScore =  str(dist.prob(self.__negativeLabel))
-        NeuScore =  str(dist.prob(self.__neutralLabel))
+        PosScore =  dist.prob(self.__positiveLabel)
+        NegScore =  dist.prob(self.__negativeLabel)
+        NeuScore =  dist.prob(self.__neutralLabel)
         #output.append((inputTweet, sentiment, 'PosScore = ' + PosScore, 'NegScore = ' + NegScore, 'NeuScore = ' + NeuScore))
         output.append(inputTweet)
         output.append(sentiment)

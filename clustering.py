@@ -290,5 +290,5 @@ def cluster_tweets():
 
     return cluster_num
 
-cluster_tweets()
+# cluster_tweets()
   

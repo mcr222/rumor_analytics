@@ -1,8 +1,9 @@
 from crawl import crawl, save_dictionary
 from indexing import buildIndex
 import rule_mining
-import matplotlib.pyplot as plt
 import Labels
+import clustering
+import ranking
 
 def get_topic_from_words(tf):
 	top_bag_words = []
@@ -48,9 +49,15 @@ if __name__ == "__main__":
 		cluster+=1
 		raw_input("Press enter to continue")
 
-		
+	
 	tweet_id_to_search["num_clusters"] = len(keywords)
 	save_dictionary("tweet_text_dictionary.json", tweet_id_to_text)
 	save_dictionary("tweet_search_dictionary.json", tweet_id_to_search)
 	buildIndex(diction)
+	cluster_num = clustering.cluster_tweets()
+	for i in cluster_num:
+		file_metadata_cluster = 'cluster'+ str(i)+'_metadata.txt'
+		ranking.computeInitialDocs(file_metadata_cluster)
+		ranking.askFeedback(file_metadata_cluster+"-rank.txt")
+		
 
