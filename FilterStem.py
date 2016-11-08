@@ -1,9 +1,10 @@
 '''
 Created on 6/10/2016
 defines functions: f_line_filter_hashment (line):
-where line is an string 
-and retunrs a list of filtered words. 
-
+    where line is an string 
+    and retunrs a list of filtered words, without stopwords. It has mentions, and hashtags.
+and def f_line_filter_hashment (line):
+    returns the list of only the words filtered nad stemmed without hasthags or mentions
 
 @author: Belen
 '''
@@ -18,7 +19,7 @@ import string
 
 
 stemmer = SnowballStemmer("english")
-st = LancasterStemmer()
+st = LancasterStemmer() 
 
 #txt="a long string of text about him and her"
 ##1print filter(lambda w: not w in s,txt.split())
@@ -49,15 +50,13 @@ def replace_elements(line):
              
     return line
 
-def f_line_filter (line, return_words_without_stem = False):
+def f_line_filter (line, return_words_without_stem = False): #filter the words without the stemming.  
         line= remove_urls(line) #call to function remove_urls
         line = replace_elements(line)
 
         words_stemed= [st.stem(i) for i in line.lower().split() if i not in stop ] # removed the stopwords and stem it
-        #words_filtered_stemmed_lancaster= [stemmer.stem(i) for i in line.lower().split() if i not in stop ] #this stemming is AWKARD
-        #  print (words_filtered)
-        ##print(words_filtered_stemmed_snowball)
-        #file_out.write()
+        #words_filtered_stemmed_lancaster= [stemmer.stem(i) for i in line.lower().split() if i not in stop ]
+        
         if(return_words_without_stem):
             words_without_stem = [i for i in line.lower().split() if i not in stop ]
             return words_stemed,words_without_stem

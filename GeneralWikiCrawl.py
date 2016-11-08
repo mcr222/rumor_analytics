@@ -49,7 +49,7 @@ def GeneralWikiCrawl():  # begining of the function.
         
         # here we put every word obtained in a dictionary and add its frequencies on the different topics. 
         for term in foot_list: 
-             term = term.encode('utf-8')
+             term = term.encode('utf-8') # with the encode utf-8 we are removing the characters that the html filter couldnt remove. 
              value=diction.get(term,None)
              if value==None:
                 diction[term]=[foot]
