@@ -1,5 +1,9 @@
 '''
 Created on 6/10/2016
+defines functions: f_line_filter_hashment (line):
+where line is an string 
+and retunrs a list of filtered words. 
+
 
 @author: Belen
 '''

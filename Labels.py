@@ -1,6 +1,9 @@
 '''
 Created on 1/11/2016
 
+Labels is the class that contains the main function SearchLabel(input)
+this function read the dictionary created in the IndexingTopicsWiki as the csv file "topics".
+The file "topics" is already created and here we read it and return the values of the inputs.   
 @author: Belen
 '''
 
@@ -13,15 +16,14 @@ topics=["football","technology", "politics", "health", "fashion", "nature", "fil
 
 csv_file = open('topics.csv', 'r')
 
-# input = [ "dictator", "trump", "clinton"]
+
+#input_list = FilterStem.f_line_filter_hashment(" miami school exams calculator science algorithms")
 #input= ["real", "madrid", "bernabeu"]
 
-def SearchLabel(input_list):
+def SearchLabel(input_list): #this is the function that, given a list, returns itshighest value on all the topics using tf.df 
     n_collections= 13
-    #print input_filtered
-
     indexreader = csv.reader(csv_file, delimiter=";")
-
+    print input_list
     lista_de_palabra = []
     for item in indexreader:
         for query_term in input_list:
@@ -54,17 +56,26 @@ def SearchLabel(input_list):
         #print sum
         list_out.append([top, sum_topics])    
     print list_out
+    
+    sum_final= 0
+    for x in list_out:
+        sum_final= sum_final + x[1] 
+      
     '''
     Return all non-zero topics an return and score from 0 to 1 by normalizing with the sum of all
     '''
-    sums=[x[1] for x in list_out]
+    '''sums=[x[1] for x in list_out]
     maxim = max(sums)
     for i in list_out: 
         if i[1]==maxim: 
             #print i[0]
-            return i[0]
-    
-    
-               
+           # return i[0]
+    '''
+        
+    for output_values in list_out:
+         if output_values[1]/sum_final > 0.1:
+            print "%s : %f" % (output_values[0],output_values[1]/sum_final)
+        
+         
 
         
