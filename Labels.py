@@ -4,7 +4,7 @@ this module defines function SearchLabel(input)
 this function read the dictionary created in the IndexingTopicsWiki as the csv file "topics".
 its purpose is that, given a list of elements (stemmed and filtered) as an input, the output will calculate its tf.idf individually over the 
 13 topics we have and will return the highest value normalized of every one. So the output will be a the higher ranked topic over the input 
-@author: Belen
+@author: Belen Diaz
 '''
 from __future__ import division
 import csv
@@ -18,7 +18,6 @@ csv_file = open('topics.csv', 'r')
 def SearchLabel(input_list): #this is the function that, given a list, returns its highest value on all the topics using tf.df 
     n_collections= 13 # integer of the number of topics we are taking into account
     indexreader = csv.reader(csv_file, delimiter=";")
-    print input_list
     list_of_words = []
     for item in indexreader: #we are reading row by row the csv file. so term with 
         for query_term in input_list:
@@ -58,6 +57,7 @@ def SearchLabel(input_list): #this is the function that, given a list, returns i
     '''
     #we show results with a threshold of 0.1 
     #If the terms were not present in any of the crawled pages, we display a 404 term not found. 
+    print "Topics labeling found:"
     if sum_final != 0:
         for output_values in list_out:
             if output_values[1]/sum_final > 0.1:

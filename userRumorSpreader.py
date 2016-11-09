@@ -1,3 +1,7 @@
+'''
+@author: Miguel Zaballa
+'''
+
 from __future__ import division
 import randomForestRumor
 

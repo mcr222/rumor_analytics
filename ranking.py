@@ -5,11 +5,12 @@ from operator import itemgetter, attrgetter, methodcaller
 import operator
 from math import log
 from itertools import islice
+import crawl
 
 def openFile(filename):
 	collection = []
 	with open(filename,'r') as test:
-		for i in test.read().split()[1:]: #skip first line
+		for i in test.read().split(): #skip first line
 			#print(i)
 			tweet_id, retweets, favorite_counts, spam_score, positive_score, negative_score, neutral_score, user_credibility, tweet_rumor_score=i.split(';')
 			doc = tweet_id,spam_score,tweet_rumor_score,user_credibility,positive_score,negative_score,neutral_score,retweets,favorite_counts
@@ -20,11 +21,15 @@ def openFile(filename):
 
 def scoreSpam(doc):
 	spam = float(doc[1])
+	if(spam == 0):
+		spam = 0.01
 	spam_score = 0.3 * log(1/spam) #low score if it's spammy, high score if it's not spammy
 	return (spam_score)
 
 def scoreTruthfulness(doc):
 	rumour = float(doc[2])
+	if(rumour ==0):
+		rumour = 0.1
 	rumour_score = 0.4 * log(1/rumour) #low score if it contains lot of rumor, high score if it has less rumor
 	return (rumour_score)
 
@@ -42,22 +47,28 @@ def scoreRetweets(collection,doc):
 	retweet_data=[]
 	normalized_retweet=0
 	for i in collection:
-		retweet_data.append(int(i[7]))
-	rt = int(doc[7])
+		retweet_data.append(float(i[7]))
+	rt = float(doc[7])
 	max_rt = max(retweet_data)
 	min_rt = min(retweet_data)
-	normalized_retweet = (rt-min_rt)/(max_rt-min_rt) #normalize retweet count between 0 and 1 so it can be an added value to overall score
+	if(max_rt-min_rt< 0.001):
+		normalized_retweet = 0
+	else:
+		normalized_retweet = (rt-min_rt)/(max_rt-min_rt) #normalize retweet count between 0 and 1 so it can be an added value to overall score
 	retweets_score = normalized_retweet
 	return (retweets_score)
 
 def scoreFavorite(collection,doc):
 	favorite_data=[]
 	for i in collection:
-		favorite_data.append(int(i[8]))
-	fv = int(doc[8])
+		favorite_data.append(float(i[8]))
+	fv = float(doc[8])
 	max_fv = max(favorite_data)
 	min_fv = min(favorite_data)
-	normalized_favorite = (fv-min_fv)/(max_fv-min_fv) #normalize fav count between 0 and 1 so it can be an added value to overall score
+	if(max_fv-min_fv< 0.001):
+		normalized_favorite = 0
+	else:
+		normalized_favorite = (fv-min_fv)/(max_fv-min_fv) #normalize fav count between 0 and 1 so it can be an added value to overall score
 	favorite_score = normalized_favorite
 	return (favorite_score)
 
@@ -89,8 +100,8 @@ def computeComponentAverage(collection):
 		neg_sentiment.append(float(i[5]))
 		neu_sentiment.append(float(i[6]))
 		user_credibility.append(float(i[3]))
-		retweet.append(int(i[7]))
-		favorite.append(int(i[8]))
+		retweet.append(float(i[7]))
+		favorite.append(float(i[8]))
 	n=len(collection)
 	avg_spam = sum(spam)/n
 	avg_rumor = sum(rumor)/n
@@ -188,6 +199,7 @@ def reRank(initialDocScore,new_weight):
 def computeInitialDocs(inputFile):
 	rank=0
 	displayRank = []
+	tweet_id_to_text = crawl.read_dictionary("tweet_text_dictionary.json")
 	collections = openFile(inputFile)
 	computeComponentAverage(collections)
 	print('\n')
@@ -200,7 +212,7 @@ def computeInitialDocs(inputFile):
 		rf.truncate()
 		for i in tweet_rank:
 			rankingscore,tweet_ID=i
-			tweet = 'insert tweet here' #fetch tweet from dictionary (use tweet_ID)
+			tweet = tweet_id_to_text[tweet_ID] #fetch tweet from dictionary (use tweet_ID)
 			rank=rank+1
 			docrank = (rank,rankingscore,tweet_ID,tweet)
 			initialdocRank.append(docrank)

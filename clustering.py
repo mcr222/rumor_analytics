@@ -1,3 +1,7 @@
+'''
+@author: Marc Cayuela Rafols
+'''
+
 from __future__ import division
 from scipy.cluster.vq import kmeans,whiten, vq
 import csv
@@ -11,6 +15,7 @@ import matplotlib.pyplot as plt
 import itertools
 import FilterStem
 import rule_mining
+import ranking
 
 '''
 Tweet similarity
@@ -34,15 +39,21 @@ def jaccard_dist(x1,x2):
 #         print dist
     return dist
 
-#jaccard_dist([1,1,1], [0,0,1])
 
 def print_cluster_length(cluster_num, clusters):
-    print "Cluster lengths"
+    '''
+    prints all cluster lengths
+    '''
+    print_words = "Cluster lengths "
     for current_cluster in range(cluster_num):
-        print len(clusters[current_cluster])
-
+        print_words += ", " +  str(len(clusters[current_cluster]))
+    
+    print print_words
 
 def print_cluster_tweets(cluster_num, clusters, tweet_id_to_index, tweet_id_to_text):
+    '''
+    print a few tweets for each cluster
+    '''
     for current_cluster in range(cluster_num):
         print("Cluster number: " + str(current_cluster))
         to_show=20
@@ -53,6 +64,9 @@ def print_cluster_tweets(cluster_num, clusters, tweet_id_to_index, tweet_id_to_t
             print "\n"
             
 def print_cluster_top_words(cluster_num, clusters, tweet_id_to_index, tweet_id_to_text):
+    '''
+    print the most frequent words for each cluster
+    '''
     top_words = []
     for current_cluster in range(cluster_num):
         print("Cluster number: " + str(current_cluster))
@@ -83,11 +97,19 @@ def print_cluster_top_words(cluster_num, clusters, tweet_id_to_index, tweet_id_t
             
        
 def filter_df(df,lb,ub):
+    '''
+    filer the terms that are not discriminative (too infrequent or too frequent)
+    '''
     if(df<lb or df>ub):
         df=0
     return df
 
 def df_statistics(total_tweets):
+    '''
+    Computes the statistics of the document frequency of all terms.
+    It defines an upper bound and lower bound for the decision of whether a term is
+    discriminative enough to use in clustering
+    '''
     csv_file = open('tweetindex.csv', 'r')
     indexreader = csv.reader(csv_file, delimiter=";")
     all_df = []
@@ -101,7 +123,11 @@ def df_statistics(total_tweets):
     return lb,ub
 
 def find_elbow(distortions,num_clusters):
-    print "Finding elbow"
+    '''
+    Looks for the elbow in the distortion vs cluster number graph.
+    The elbow determines the best number of clusters.
+    '''
+    #print "Finding elbow"
     
     slope_variations = []
     indices_slopes = []
@@ -111,20 +137,23 @@ def find_elbow(distortions,num_clusters):
     for i in range(2,len(num_clusters)):
         slope = distortions[i-1]-distortions[i]
         slope_variation = (previous_slope-slope)/slope
-        print slope_variation
+        
         if(slope>slope_minimum):    
             indices_slopes.append(i)
             slope_variations.append(slope_variation)
         previous_slope = slope
     
-    print slope_variations  
     idx = indices_slopes[slope_variations.index(max(slope_variations))]
-    print num_clusters[idx+1]
-    plt.plot(num_clusters,distortions)
-    plt.show()
+#     plt.plot(num_clusters,distortions)
+#     plt.show()
     return num_clusters[idx+1]
 
 def compute_score(clusters,cluster_num,tweet_id_to_search,good_num_clust):
+    '''
+    Compute F1 score comparing cluster data and the search data labels. This
+    function tries to match clusters to different searches to see what cluster
+    corresponds to which search.
+    '''
     perm_clusters = itertools.permutations(range(cluster_num))
     perm = perm_clusters.next()
     P_max = None
@@ -161,6 +190,10 @@ def compute_score(clusters,cluster_num,tweet_id_to_search,good_num_clust):
     return F1_max, P_max, R_max
 
 def cluster_tweets():
+    '''
+    Using the crawling generated files cluster the tweets and save the results
+    in a file containing all tweets data in the same cluster
+    '''
     tweet_id_to_text = crawl.read_dictionary("tweet_text_dictionary.json")
     total_tweets = len(tweet_id_to_text)
     
@@ -181,6 +214,9 @@ def cluster_tweets():
     term_counter = 0
     all_df = []
     all_filter_df = []
+    '''
+    Builds the tweet's vectors and the clustering space
+    '''
     for row in indexreader:
         df = len(row)-1
         filtered_df = filter_df(df,lb,ub)
@@ -207,19 +243,18 @@ def cluster_tweets():
     
     print "Skipped terms: " + str(count)
     print "Number of terms: " + str(term_counter)
-     
-    print "Performing clustering!"
-    
-    whiten_data = False
-    if(whiten_data):
-        data = whiten(zip(*cluster_data[1:][:]))
-    else:
-        data = zip(*cluster_data[1:][:])
         
     
     '''
-    Different clustering techniques tried
-    '''
+    Different clustering techniques tried for testing purposes
+    '''   
+        
+#     whiten_data = False
+#     if(whiten_data):
+#         data = whiten(zip(*cluster_data[1:][:]))
+#     else:
+#         data = zip(*cluster_data[1:][:])
+    
     # label = fclusterdata(data, cluster_num, criterion='maxclust', metric = cosine_dist)
     
     
@@ -235,7 +270,12 @@ def cluster_tweets():
     # print len(label)
     #method specifies the distance to calculate between clusters
     # label = fclusterdata(data, cluster_num, criterion = "maxclust", metric = cosine_dist, method = "average")
-     
+    
+    '''
+    Performs clustering using k-means and euclidean distance several times 
+    '''
+    print "Performing clustering!"
+    data = zip(*cluster_data[1:][:])
     distortions = []
     results = []
     clusters = range(1,12)
@@ -243,14 +283,20 @@ def cluster_tweets():
         codebook, distortion = kmeans(data, cluster_num)
         label, _ = vq(data,codebook)
         results.append((codebook,label))
-        print "Distortion"
-        print distortion
         distortions.append(distortion)
-        
+    
+    '''
+    For the several k-means runs it picks the one with the number of clusters
+    in the elbow, the point where adding more clusters is not helpful anymore
+    '''
     opt_num_clusters = find_elbow(distortions, clusters)
-    print opt_num_clusters
+    
     codebook,label = results[opt_num_clusters]
     
+    '''
+    Create the clusters of tweets from the labels of the clustering and
+    create independent files for each tweet.
+    '''
     clusters = [0]*opt_num_clusters
     for j in range(opt_num_clusters):
         clusters[j] = []
@@ -260,22 +306,29 @@ def cluster_tweets():
         clusters[label[tweet_index]-1].append(tweet_id)
     
     cluster_num = len(clusters)
-    print "Number of clusters"
-    print cluster_num
+    print "Number of clusters " + str(cluster_num)
     
     metadata_file = open('metadata.txt', 'r')
     
     files = []
     for i in range(cluster_num):
         files.append(open('cluster'+ str(i)+'_metadata.txt','w'))
-        
+    
+    first = True
+    i=0
     for row in metadata_file.read().split():
-        tweet_id,_,_,_,_,_,_,_,_ = row.split(";")
-        files[label[tweet_index]-1].write(row + "\n")
+        if(not first):
+            tweet_id,_,_,_,_,_,_,_,_ = row.split(";")
+            if(tweet_id in tweet_id_to_index):
+                i+=1
+                tweet_index = tweet_id_to_index[tweet_id]
+                files[label[tweet_index]-1].write(row + "\n")
+        else:
+            first = False
     
     for file_clust in files:
         file_clust.close()
-        
+    
     '''
     Get the labels for the search the tweet belongs to (real tweet's label)
     
@@ -294,11 +347,9 @@ def cluster_tweets():
     '''
     Several prints to show how the clustering performed
     ''' 
-#     print_cluster_length(cluster_num, clusters) 
+    print_cluster_length(cluster_num, clusters) 
 #     print_cluster_top_words(cluster_num,clusters,tweet_id_to_index, tweet_id_to_text)  
 #     print_cluster_tweets(cluster_num, clusters, tweet_id_to_index, tweet_id_to_text)
 
     return cluster_num
 
-# cluster_tweets()
-  

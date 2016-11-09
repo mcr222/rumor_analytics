@@ -1,4 +1,6 @@
-
+'''
+@author: Irfan Nur Afif
+'''
 
 
 def buildIndex(diction):

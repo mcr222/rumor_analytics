@@ -7,7 +7,7 @@ and def f_line_filter_hashment (line):
     returns the list of only the words filtered and stemmed without hasthags or mentions
 and def f_line_filter (line, return_words_without_stem = False): 
     returns words filtered by the stopwords but not stemmed.
-@author: Belen
+@author: Belen Diaz
 '''
 
 import re   

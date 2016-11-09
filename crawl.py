@@ -1,4 +1,6 @@
-#__author: Miranti Rahmani, Irfan Nur Afif__
+'''
+@author: Miranti Rahmani, Irfan Nur Afif, Marc Cayuela Rafols
+'''
 
 import tweepy,FilterStem #pip install tweepy
 from TwitterSearch import * #pip install TwitterSearch 
@@ -19,6 +21,8 @@ auth = tweepy.OAuthHandler(consumer_key, consumer_secret)
 auth.set_access_token(access_token, access_token_secret)
 api = tweepy.API(auth)
 
+tweet_limit = 5000
+
 def save_dictionary(name, save_dictionary):
 	f = open(name,"w")
 	json.dump(save_dictionary,f)
@@ -34,6 +38,15 @@ def format_num(num):
 #input: none
 #output: dictionary of: filtered word -> (docID,freq)
 def crawl(keywordstr, first = True, diction=None, tweet_id_to_text=None, tweet_id_to_search=None,cluster=0, docID=1):
+	'''
+	This function crawls Twitter with a given input keywordstr and saves all the results in files.
+	If the search is not the first one, then the new tweets are appended to the result files.
+	Additionally, for each tweet it performs a thorough analysis on:
+		- sentiment of the tweet (positive, negative and neutral)
+		- spam classification of the tweet (score on how spam it is)
+		- rumor classification of the tweet (score of how rumorish it is)
+		- user credibility score (for each user return an score on how prone to tweeting rumors it is)
+	'''
 	
 	if(diction==None):
 		diction ={}
@@ -68,8 +81,11 @@ def crawl(keywordstr, first = True, diction=None, tweet_id_to_text=None, tweet_i
 		            access_token = access_token,
 		            access_token_secret = access_token_secret
 		        )
+		
+		tweets = 0
 
 		for tweet in ts.search_tweets_iterable(tso):
+			tweets +=1
 			uID = tweet['user']['id']
 			status = tweet['text'].replace('\n', ' ').encode('ascii','ignore')
 # 			print status
@@ -116,8 +132,12 @@ def crawl(keywordstr, first = True, diction=None, tweet_id_to_text=None, tweet_i
 			
 			docID = docID + 1
 			
+			if(tweets == tweet_limit):
+				break
+			
 			if(docID%50==0):
 				print docID
+			
 			#indexing
 			
 			#tweetToken=status.split(" ")

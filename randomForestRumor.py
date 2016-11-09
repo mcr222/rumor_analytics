@@ -1,3 +1,7 @@
+'''
+@author: Miguel Zaballa
+'''
+
 from sklearn.ensemble import RandomForestClassifier
 from sklearn import preprocessing
 from numpy import asarray

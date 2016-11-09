@@ -4,7 +4,7 @@ This class creates the dictionary of every term crawled in the wikipedia pages.
 the output is the topics.csv file where each row corresponds to a term and its attributes are the frequency of this terms views in the topics pages.
 for instance:
 Trump: politics: 94758, footbal:2, beauty:348 etc. 
-@author: Belen
+@author: Belen Diaz
 '''
 
 import wikipedia
