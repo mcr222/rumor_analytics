@@ -98,7 +98,11 @@ class SentimentAnalysis(object):
         output.append(NeuScore)
         return output
     
-    def performSentimentAnalysis(self):       
+    def performSentimentAnalysis(self):  
+        
+        if self.__classifier != None and self.__wordFeatures != None:
+            return
+             
         if os.path.exists(self.__sentimentAnalyzerTrainedDataFileName):
             with open(self.__sentimentAnalyzerTrainedDataFileName, 'rb') as trainedData:
                 self.__classifier = pickle.load(trainedData)

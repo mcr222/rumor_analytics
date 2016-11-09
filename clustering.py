@@ -164,12 +164,6 @@ def cluster_tweets():
     tweet_id_to_text = crawl.read_dictionary("tweet_text_dictionary.json")
     total_tweets = len(tweet_id_to_text)
     
-    # tweet_id_to_search = crawl.read_dictionary("tweet_search_dictionary.json")
-    # good_num_clust = tweet_id_to_search["num_clusters"]
-    # print "Number good elements clusters"
-    # for clust in range(good_num_clust):
-    #     print tweet_id_to_search["num_elements_clust"+str(clust)]
-    
     
     print "Total number of tweets"
     print total_tweets
@@ -188,7 +182,6 @@ def cluster_tweets():
     all_df = []
     all_filter_df = []
     for row in indexreader:
-        #Remove it to avoid idf to consider them to important as they are infrequent
         df = len(row)-1
         filtered_df = filter_df(df,lb,ub)
         all_df.append(df)
@@ -223,7 +216,10 @@ def cluster_tweets():
     else:
         data = zip(*cluster_data[1:][:])
         
-     
+    
+    '''
+    Different clustering techniques tried
+    '''
     # label = fclusterdata(data, cluster_num, criterion='maxclust', metric = cosine_dist)
     
     
@@ -279,11 +275,25 @@ def cluster_tweets():
     
     for file_clust in files:
         file_clust.close()
+        
+    '''
+    Get the labels for the search the tweet belongs to (real tweet's label)
+    
+    And compute the F1 score when we have the real tweet's label
+    '''
+    # tweet_id_to_search = crawl.read_dictionary("tweet_search_dictionary.json")
+    # good_num_clust = tweet_id_to_search["num_clusters"]
+    # print "Number good elements clusters"
+    # for clust in range(good_num_clust):
+    #     print tweet_id_to_search["num_elements_clust"+str(clust)]
+    
     # print "Computing score"
     # F1,P,R = compute_score(clusters,cluster_num,tweet_id_to_search,good_num_clust)
     # print F1
     
-     
+    '''
+    Several prints to show how the clustering performed
+    ''' 
 #     print_cluster_length(cluster_num, clusters) 
 #     print_cluster_top_words(cluster_num,clusters,tweet_id_to_index, tweet_id_to_text)  
 #     print_cluster_tweets(cluster_num, clusters, tweet_id_to_index, tweet_id_to_text)

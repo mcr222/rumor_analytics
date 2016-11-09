@@ -11,8 +11,9 @@ def get_all_tweets(api, screen_name):
     #make initial request for most recent tweets (200 is the maximum allowed count)
     #print "getting tweets " 
     #all subsiquent requests use the max_id param to prevent duplicates
+    new_tweets = []
     try:
-        new_tweets = api.user_timeline(screen_name, count=10)
+        new_tweets = api.user_timeline(screen_name, count=5)
     except:
         pass
     #save most recent tweets
@@ -44,7 +45,9 @@ def run50random(outtweets):
     total=0
     for x in labels:
         total=total+x
-    rumorRatio=total/len(outtweets)
+    rumorRatio = 0
+    if len(outtweets)!=0:
+        rumorRatio=total/len(outtweets)
     return rumorRatio
         
 def userMetaCrawl(api,userId):

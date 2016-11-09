@@ -40,6 +40,8 @@ def crawl(keywordstr, first = True, diction=None, tweet_id_to_text=None, tweet_i
 		
 	tf = {}
 	
+	sentimentAnalysis = SentimentAnalysis()
+	
 	if(first):
 		file_out_metadata = open('metadata.txt', 'w')
 		file_out_metadata.write('tweetID;numberOfRetweet;numberOfFavorites;spam_score;positive_score;negative_score;neutral_score;user_credibility;tweet_rumor_score' + '\n')
@@ -87,7 +89,6 @@ def crawl(keywordstr, first = True, diction=None, tweet_id_to_text=None, tweet_i
 			'''
 			Sentiment analysis
 			'''
-			sentimentAnalysis = SentimentAnalysis()
 			_,_,positive_score,negative_score,neutral_score = sentimentAnalysis.Main_performSentimentAnalysis(status)
 # 			print 'sentiment label: ' + str(label)  # sentiment label
 
@@ -115,7 +116,7 @@ def crawl(keywordstr, first = True, diction=None, tweet_id_to_text=None, tweet_i
 			
 			docID = docID + 1
 			
-			if(docID%10==0):
+			if(docID%50==0):
 				print docID
 			#indexing
 			
