@@ -8,13 +8,19 @@ warnings.filterwarnings('ignore')
 
 clf = None
 encoders = None
-
+'''
+Computes the number of lower characters
+'''
 def n_lower_chars(string):
     return sum(1 for c in string if c.islower())
-
+'''
+Computes the number of upper characters
+'''
 def n_upper_chars(string):
     return sum(1 for c in string if c.isupper())
-  
+'''
+Opens the training and outputs the instances values and labels separetely
+''' 
 def openFile():
     with open('TS6.csv', 'rb') as fin: 
         reader=csv.reader(fin,delimiter=';')
@@ -26,12 +32,10 @@ def openFile():
             instances.append(instance)
             Y.append(row[-1])
     return instances, Y
-
-"""
-transformMatrixToNum: Given a matrix converts to numeric the attribute values. 
+'''
+Given an array converts to numeric the attribute values. 
 Assigning the same number for the same attribute values
-"""
-
+'''
 def transformArrayToNum(x):
     global encoders
     encoded_x = []
@@ -40,7 +44,10 @@ def transformArrayToNum(x):
         encoded_x.append(encoders[i].transform([el])[0]) 
         i+=1
     return encoded_x
-        
+'''
+Given a matrix converts to numeric the attribute values. 
+Assigning the same number for the same attribute values
+'''      
 def transformMatrixToNum(X):
     global encoders
     x_array=asarray(X)
@@ -59,7 +66,9 @@ def transformMatrixToNum(X):
         x_trans.append(list1)
         
     return x_trans
-
+'''
+Makes numeric all columns except 0, 1, and 2
+'''
 def makeNumericMatrix(X):
     nominalColumns = [row[0:3] for row in X]
     #print columns1to6
@@ -76,6 +85,9 @@ def makeNumericMatrix(X):
             numericMatrix.append(newRow)
     return numericMatrix
 
+'''
+Extract the tweet text features 
+'''
 def featureExtractionfromText(text):
         attributes=[]
         #print text
@@ -99,6 +111,9 @@ def featureExtractionfromText(text):
         attributes.append(upper) 
         return attributes             
 
+'''
+It is given the tweet text and other 3 attributes an outputs the probabability of tweet being a rumor
+'''
 def tweetRumorclassification(hasBeenRT, isReply, retweet_count, tweet_text):
     global clf
     tweetinfo= featureExtractionfromText(tweet_text)
@@ -114,6 +129,9 @@ def tweetRumorclassification(hasBeenRT, isReply, retweet_count, tweet_text):
     X_prob=clf.predict_proba(x_to_classify)
     return X_prob[0][1]
 
+'''
+It is given the tweet text and other 3 attributes an outputs the probabability of tweet being a rumor
+'''
 def create_random_forest():
     global clf
     allAttributes= openFile()

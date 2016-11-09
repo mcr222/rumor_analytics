@@ -3,7 +3,9 @@ import randomForestRumor
 
 def column(matrix, i):
     return [row[i] for row in matrix]
-
+'''
+Given the connection to the twitter API and user id, returns the attributes of the user last 5 tweets
+'''
 def get_all_tweets(api, screen_name):
     #Twitter only allows access to a users most recent 3240 tweets with this method
     #initialize a list to hold all the tweepy Tweets
@@ -37,7 +39,9 @@ def get_all_tweets(api, screen_name):
         
     return outtweets
 #     fieldnames=['Is this a RT?','Has it been RT?','is it  a reply?','#ofRT','#ofWords','#ofChars','#ofwhiteSpaces','#ofHastags','#ofAts','#ofLower','#ofUpper']
-       
+'''
+Computes the average score for the given instances
+'''    
 def run50random(outtweets):
     labels=[]
     for tweet in outtweets:
@@ -49,7 +53,9 @@ def run50random(outtweets):
     if len(outtweets)!=0:
         rumorRatio=total/len(outtweets)
     return rumorRatio
-        
+'''
+Computes the  the average score of thelast 50 tweets of the user given a userid and a connection     
+'''        
 def userMetaCrawl(api,userId):
     #print "Getting data from user: "+ str(userId)
     outtweets=get_all_tweets(api, userId)
