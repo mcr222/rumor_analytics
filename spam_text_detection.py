@@ -2,6 +2,7 @@
 
 from collections import Counter
 from nltk import NaiveBayesClassifier, classify
+
 import FilterStem
 import random
 import json
@@ -142,6 +143,7 @@ def build_spam_classifier():
     classifier_tweet = NaiveBayesClassifier.train(training_set_tweet)
     try:
         extra_data=[]
+        counter=0
         random_tweet=get_random_tweet()
         for tweet in random_tweet:
             sms_spam_prob=spam_sms_prob(tweet)    #get probability that a tweet is a spam using sms classifier
@@ -155,7 +157,7 @@ def build_spam_classifier():
                 if feature is not None:
                     extra_data.append((feature,"ham"))
                     counter=counter-1
-    except TwitterSearchException as e: #catch errors
+    except Exception as e: #catch errors
         print e
     training_set_tweet.extend(extra_data) #add extra data to train data
     classifier_tweet = NaiveBayesClassifier.train(training_set_tweet) #retrain tweet classifier
