@@ -4,7 +4,6 @@ from collections import Counter
 from nltk import NaiveBayesClassifier, classify
 import FilterStem
 import random
-from TwitterSearch import * #pip install TwitterSearch 
 import json
 import pickle
 
@@ -13,11 +12,16 @@ error_count=0
 classifier_tweet={}
 classifier_sms={}
 
-
+#to read tweets that has been crawl
+#Input = file name of the dictionary
+#Output= dictionary: (tweetId->tweet) 
 def read_dictionary(name):
 	f = open(name,"r")
 	return json.load(f)
 
+#to save the tweet and sms classifier
+#Input = -
+#Output= -
 def save_classifier():
     f=open('spam_sms_classifier.pickle','wb')
     g=open('spam_tweet_classifier.pickle','wb')
@@ -28,6 +32,9 @@ def save_classifier():
     f.close()
     g.close()
 
+#to load the tweet and sms classifier
+#Input = -
+#Output= -
 def load_classifier():
     f=open('spam_sms_classifier.pickle','rb')
     g=open('spam_tweet_classifier.pickle','rb')
@@ -38,7 +45,9 @@ def load_classifier():
     f.close()    
     g.close()
 
-
+#extract features from a tweet, the feature will stemmed and filtered tweets
+#Input = tweet (string)
+#Output= dictionary: token, frequency
 def get_features(text):
     global error_count
     try:
@@ -47,6 +56,10 @@ def get_features(text):
         return word_count
     except:
         error_count += 1
+
+#get any unlabeled tweet as the feed for co-training. The unlabeled tweet is fetched from the crawled tweets.
+#Input: -
+#Output: aray of string (tweets).
 
 def get_random_tweet():
     statuses=[]
@@ -60,7 +73,7 @@ def get_random_tweet():
         
 
 #Input: tweet (string)
-#Output: probability that tweet is spam
+#Output: probability that tweet is spam based on sms classifier
 def spam_sms_prob(tweet):
     global classifier_sms
     dist = classifier_sms.prob_classify(get_features(tweet))
@@ -69,7 +82,7 @@ def spam_sms_prob(tweet):
     return dist.prob("spam")
 
 #Input: tweet (string)
-#Output: probability that tweet is spam
+#Output: probability that tweet is spam based on tweet classifier
 def spam_tweet_prob(tweet):
     global classifier_tweet
     dist = classifier_tweet.prob_classify(get_features(tweet))
@@ -93,12 +106,12 @@ def build_spam_classifier():
             sms_data.append((feature, "spam"))
         else:
             error_count += 1
+    #tweet spam
     spam_data = open("Spam_dataset/tweet-spam.txt")
     for line in spam_data:
         feature = get_features(line)
         if feature is not None:
             tweet_data.append((feature, "spam"))
-            #sms_data.append((feature, "spam"))
         else:
             error_count += 1
     #sms ham
@@ -115,7 +128,6 @@ def build_spam_classifier():
         feature = get_features(line)
         if feature is not None:
             tweet_data.append((feature, "ham"))
-            #sms_data.append((feature, "ham"))
         else:
             error_count += 1            
     random.shuffle(sms_data)
@@ -132,8 +144,8 @@ def build_spam_classifier():
         extra_data=[]
         random_tweet=get_random_tweet()
         for tweet in random_tweet:
-            sms_spam_prob=spam_sms_prob(tweet)
-            tweet_spam_prob=spam_tweet_prob(tweet)
+            sms_spam_prob=spam_sms_prob(tweet)    #get probability that a tweet is a spam using sms classifier
+            tweet_spam_prob=spam_tweet_prob(tweet)#get probability that a tweet is a spam using tweet classifier
             feature = get_features(tweet)
             if(sms_spam_prob>0.90 and tweet_spam_prob>0.90):
                 if feature is not None:
@@ -143,25 +155,15 @@ def build_spam_classifier():
                 if feature is not None:
                     extra_data.append((feature,"ham"))
                     counter=counter-1
-            #classifier_sms = NaiveBayesClassifier.train(training_set)
-            #classifier_tweet = NaiveBayesClassifier.train(training_set_tweet)                
     except TwitterSearchException as e: #catch errors
         print e
-    training_set_tweet.extend(extra_data)
-    classifier_tweet = NaiveBayesClassifier.train(training_set_tweet)
-    #print classify.util.accuracy(classifier_sms,test_set)
-    #print classify.util.accuracy(classifier_sms,tweet_data)
-    #print classify.util.accuracy(classifier_tweet,test_set)
-    #print classify.util.accuracy(classifier_tweet,tweet_data)
-        ###print classifier_sms.show_most_informative_features(20)
-        #print classifier_tweet.show_most_informative_features(20)
+    training_set_tweet.extend(extra_data) #add extra data to train data
+    classifier_tweet = NaiveBayesClassifier.train(training_set_tweet) #retrain tweet classifier
     save_classifier()
 
 
-
-
 #Input: tweet (string)
-#Output: "spam" or "ham" (string)
+#Output: "spam" or "ham" (string) based on tweet classifier
 def spam_classify(tweet):
     return classifier_tweet.classify(get_features(tweet))
     
@@ -172,20 +174,3 @@ try:
     load_classifier()
 except:
     build_spam_classifier()
-#build_spam_classifier()
-#    a=spam_classify("Subject: customer list   - - - - - - - - - - - - - - - - - - - - - - forwarded by gary w lamphier / hou / ect on 01 / 28 / 2000  04 : 57 pm - - - - - - - - - - - - - - - - - - - - - - - - - - -    from : lee l papayoti on 01 / 19 / 2000 05 : 30 pm  to : james a ajello / hou / ect @ ect , wendy king / corp / enron @ enron , jim crump / corp / enron @ enron , andrew wilson / corp / enron @ enron , glenn wright / corp / enron @ enron   cc : gary w lamphier / hou / ect @ ect , james mackey / hou / ect @ ect subject : ")
-#    print(a)
-#    a=spam_classify("If your in pain call Oriental Therapies at 624-158-1072 Office San Jose del cabo in front of Mcdonlads")
-#    print(a)
-#    a=spam_tweet_prob("I really love Justin Bieber!")
-#    print(a)
-#    a=spam_tweet_prob("Hey, check this out!")
-#    print(a)
-#     a=spam_tweet_prob("Justin Bieber is a girl")
-#     print(a)
-#     a=spam_tweet_prob("Hey, check this out: Will Smith is dead! http:t.co/12212")
-#     print(a)
-#     a=spam_tweet_prob("Hey, check this out to gain a new follower: http:t.co/12212")
-#     print(a)
-#     a=spam_tweet_prob("Follow who retweet this!")
-#     print(a)
