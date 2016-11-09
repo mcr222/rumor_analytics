@@ -23,6 +23,7 @@ import os.path
 
 class SentimentAnalysis(object):
     
+    # member variables 
     __tempTweets = []
     __tweets = []    
     __wordFeatures = None
@@ -42,6 +43,7 @@ class SentimentAnalysis(object):
     def __init__(self):
         pass
 
+    # read from training data input file and put tweets in a file
     def readFromFiles(self):
         fname = self.__trainingDataInputFileName
         lines = [line.rstrip('\n') for line in open(fname)]
@@ -54,11 +56,13 @@ class SentimentAnalysis(object):
                 break
         return None
     
+    # convert tweets in a lower case and ignore words of length less then 3
     def combineNegAndPosTweets(self):        
         for (words, sentiment) in self.__tempTweets:
             words_filtered = [e.lower() for e in words.split() if len(e) >= 3] 
             self.__tweets.append((words_filtered, sentiment))
     
+    # extra words in tweets
     def get_words_in_tweets(self, __tweets):
         all_words = []
         for (words, sentiment) in __tweets:
@@ -66,6 +70,7 @@ class SentimentAnalysis(object):
             all_words.extend(words)
         return all_words
 
+    # compute frequency of words and sort them according to frequency
     def get_word_features(self, wordlist):
         wordlist = nltk.FreqDist(wordlist)
         wordlist = OrderedDict(sorted(wordlist.items(), key=lambda x:x[1],reverse=True))
@@ -73,9 +78,11 @@ class SentimentAnalysis(object):
         with open(self.__wordFeaturesFileName, 'wb') as wordFeatures:
             pickle.dump(self.__wordFeatures, wordFeatures, pickle.HIGHEST_PROTOCOL)
     
+    # extract words features
     def extractWordFeatures(self):
         self.get_word_features(self.get_words_in_tweets(self.__tweets))
     
+    # creates structure to be passed to classifier
     def extract_features(self, document):
         document_words = set(document)
         features = {}
@@ -83,6 +90,7 @@ class SentimentAnalysis(object):
             features['contains(%s)' % word] = (word in document_words)  
         return features
 
+    # classify the tweets and compute polarity for each label
     def ComputeResults(self, inputTweet):       
         output = []
         sentiment =  self.__classifier.classify(self.extract_features(inputTweet.split()))  
@@ -98,6 +106,9 @@ class SentimentAnalysis(object):
         output.append(NeuScore)
         return output
     
+    
+    # perform sentiment analysis
+    # serialize the trained object
     def performSentimentAnalysis(self):  
         
         if self.__classifier != None and self.__wordFeatures != None:
