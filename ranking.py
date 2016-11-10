@@ -125,8 +125,12 @@ def computeComponentAverage(collection):
 #learn rank
 def getinitRank(initialdocRank):
 	retRank = []
+	ranked = 0
 	for i in initialdocRank:
 		retRank.append(i[0])
+		ranked += 1
+		if ranked==10:
+			break
 	return (retRank)
 
 def getinitScore(initialdocRank):
@@ -254,6 +258,8 @@ def callForFeedback(rankFile): #only called if user wants to give feedback
 		uRank = raw_input('tID:' + str(tweet_ID) + 'Body: ' + str(tweet) + ' --is ranked no.' + str(x) + '. Which rank this tweet should be? ')
 		uInputTest.append(int(uRank))
 		x=x+1
+		if(x==11):
+			break
 	
 	print('Initial Rank Suggested by system:')
 	rankInit = getinitRank(initialdocRank)
