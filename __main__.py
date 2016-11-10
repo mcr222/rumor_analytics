@@ -34,6 +34,7 @@ if __name__ == "__main__":
 		Perform initial search
 		'''
 		keyword = raw_input("Please enter search term: ")
+		print "This will take a while (30 secs/50 tweets in a good laptop)"
 	
 		docID=1
 		diction, tweet_id_to_text, tweet_id_to_search,docID, tf = crawl(keyword)

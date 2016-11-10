@@ -136,6 +136,9 @@ def crawl(keywordstr, first = True, diction=None, tweet_id_to_text=None, tweet_i
 				break
 			
 			if(docID%50==0):
+				print "Tweet number " + str(docID) + " : " + str(status)
+				print "Spam score, positive score, negative score, rumor score, user credibility score"
+				print str(spam_score) + ", " + str(positive_score) + ", " + str(negative_score) + ", " + str(tweet_rumor_score) + ", " + str(user_rumor_score)
 				print docID
 			
 			#indexing
