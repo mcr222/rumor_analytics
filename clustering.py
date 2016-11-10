@@ -144,8 +144,10 @@ def find_elbow(distortions,num_clusters):
         previous_slope = slope
     
     idx = indices_slopes[slope_variations.index(max(slope_variations))]
-#     plt.plot(num_clusters,distortions)
-#     plt.show()
+    plt.plot(num_clusters,distortions)
+    plt.xlabel("Number of clusters")
+    plt.ylabel("k-means euclidean distortion")
+    plt.show()
     return num_clusters[idx+1]
 
 def compute_score(clusters,cluster_num,tweet_id_to_search,good_num_clust):

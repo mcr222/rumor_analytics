@@ -64,4 +64,4 @@ def userMetaCrawl(api,userId):
     #print "Getting data from user: "+ str(userId)
     outtweets=get_all_tweets(api, userId)
     rumorPercent=run50random(outtweets)
-    return rumorPercent
+    return 1.0-rumorPercent
