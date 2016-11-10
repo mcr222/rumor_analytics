@@ -51,7 +51,7 @@ if __name__ == "__main__":
 		'''
 		Perform all searches in the additional searches found
 		'''
-		accumulated_tweets = 0
+		accumulated_tweets = len(tweet_id_to_search)
 		#this variable identifies clusters for testing purposes when the searches belong to different
 		#clusters
 		cluster = 1
@@ -77,6 +77,7 @@ if __name__ == "__main__":
 	'''
 	cluster_num = clustering.cluster_tweets()
 	for i in range(cluster_num):
+		print "Cluster number " + str(i)
 		file_metadata_cluster = 'cluster'+ str(i)+'_metadata.txt'
 		ranking.computeInitialDocs(file_metadata_cluster)
 		ranking.askFeedback(file_metadata_cluster+"-rank.txt")
